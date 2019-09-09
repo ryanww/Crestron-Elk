@@ -24,11 +24,12 @@ namespace ElkAlarm
         private static string kpText;
 
         internal static Dictionary<int, InternalEvents> Zones = new Dictionary<int, InternalEvents>();
-        //internal static ElkKeypad kp;
+        internal static Dictionary<int, InternalEvents> Areas = new Dictionary<int, InternalEvents>();
+        
 
 
 
-        //Zone -----------------------------------------------------------
+        //Zones -----------------------------------------------------------
         static internal bool RegisterZone(int zone)
         {
             try
@@ -42,6 +43,25 @@ namespace ElkAlarm
             catch (Exception e)
             {
                 ErrorLog.Error("Elk Error: Couldn't add zone {0} - {1}", zone, e.Message);
+                return false;
+            }
+        }
+
+
+        //Areas -----------------------------------------------------------
+        static internal bool RegisterArea(int area)
+        {
+            try
+            {
+                lock (Areas)
+                {
+                    Areas.Add(area, new InternalEvents());
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorLog.Error("Elk Error: Couldn't add area {0} - {1}", area, e.Message);
                 return false;
             }
         }

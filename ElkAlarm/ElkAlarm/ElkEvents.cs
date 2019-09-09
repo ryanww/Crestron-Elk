@@ -79,6 +79,40 @@ namespace ElkAlarm
         StatusChange = 0,
         TypeChange = 1
     }
+
+    //Area -------------------------------------------------------
+    public class ElkAreaEventArgs : EventArgs
+    {
+        public int Area;
+        public eElkAreaEventID EventID;
+        public string Data_String;
+        public bool Data_Bool;
+        public int Data_Int;
+
+        /// <summary>
+        /// Default constructor for Elk Area Events
+        /// </summary>
+        /// <param name="zone">Area ID</param>
+        /// <param name="eventID">Event Type</param>
+        /// <param name="sData">String Data</param>
+        /// <param name="bData">Bool Data</param>
+        /// <param name="iData">Integer Data</param>
+        public ElkAreaEventArgs(int zone, eElkAreaEventID eventID, string sData, bool bData, int iData)
+        {
+            this.Area = zone;
+            this.EventID = eventID;
+            this.Data_String = sData;
+            this.Data_Bool = bData;
+            this.Data_Int = iData;
+        }
+
+    }
+    public enum eElkAreaEventID
+    {
+        armStatusChange = 0,
+        stateStatusChange = 1,
+        alarmStatusChange = 2
+    }
     
 
     //Keypad ---------------------------------------------------------
