@@ -70,6 +70,7 @@ namespace ElkAlarm
             if (e.Name == "")
             {
                 //TODO: Add event stuff from processor
+                //type, status and description
             }
         }
     }

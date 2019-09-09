@@ -1,0 +1,110 @@
+#SYMBOL_NAME "Elk Area Driver"
+
+#INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
+#USER_SIMPLSHARP_LIBRARY "ElkAlarm"
+
+Digital_Input _skip_, Arm_Away, Arm_Stay, Arm_Night, Arm_Stay_Instant, Arm_Night_Instant, Arm_Vacation, Disarm, Arm_Exit_button, Arm_Stay_Button;
+
+Digital_Output _skip_, Arm_Status[7], State_Status[6], Alarm_Status[17];
+
+String_Output _skip_, Area_Description;
+
+ElkAreaSimpl area;
+
+integer_parameter AreaNumber;
+
+Push Arm_Away
+{
+    area.SetArmState(0);
+}
+Push Arm_Stay
+{
+    area.SetArmState(1);
+}
+Push Arm_Night
+{
+    area.SetArmState(2);
+}
+Push Arm_Stay_Instant
+{
+    area.SetArmState(3);
+}
+Push Arm_Night_Instant
+{
+    area.SetArmState(4);
+}
+Push Arm_Vacation
+{
+    area.SetArmState(5);
+}
+Push Disarm
+{
+    area.SetArmState(6);
+}
+Push Arm_Exit_button
+{
+    area.SetArmState(7);
+}
+Push Arm_Stay_Button
+{
+    area.SetArmState(8);
+}
+
+Callback Function onArmStatusChange(integer index)
+{
+    setarray(Arm_Status, 0);
+    Arm_Status[index+1] = 1;
+    //ArmedAway = 0,
+    //ArmedStay = 1,
+    //ArmedNight = 2,
+    //ArmedStayInstant = 3,
+    //ArmedNightInstant = 4,
+    //ArmedVacation = 5,
+    //Disarmed = 6
+}
+Callback Function onStateStatusChange(integer index)
+{
+    setarray(State_Status, 0);
+    State_Status[index+1] = 1;
+    //NotReadyToArm = 0,
+    //ReadyToArm = 1,
+    //ForceArmZoneFault = 2,
+    //Armed = 3,
+    //ForceArmed = 4,
+    //ArmedWithBypass = 5
+}
+Callback Function onAlarmStatusChange(integer index)
+{
+    setarray(Arm_Status, 0);
+    Alarm_Status[index+1] = 1;
+    //NoAlarmActive = 0,
+    //EntranceDelayActive = 1,
+    //AlarmAbortDelayActive = 2,
+    //FireAlarmActive = 3,
+    //MedicalAlarmActive = 4,
+    //PoliceAlarmActive = 5,
+    //BurglarAlarmActive = 6,
+    //Aux1AlarmActive = 7,
+    //Aux2AlarmActive = 8,
+    //CarbonMonoxideAlarmActive = 9,
+    //EmergencyAlarmActive = 10,
+    //FreezeAlarmActive = 11,
+    //GasAlarmActive = 12,
+    //HeatAlarmActive = 13,
+    //WaterAlarmActive = 14,
+    //FireSupervisoryAlarmActive = 15,
+    //VerifyFireAlarmActive = 16
+}
+Callback Function onDescriptionChange(string desc)
+{
+    Area_Description = desc;
+}
+
+Function Main()
+{              
+    RegisterDelegate(area, newArmStatusChange, onArmStatusChange);
+    RegisterDelegate(area, newStateStatusChange, onStateStatusChange);
+    RegisterDelegate(area, newAlarmStatusChange, onAlarmStatusChange)
+    RegisterDelegate(area, newDescriptionChange, onDescriptionChange);
+    area.Initialize(AreaNumber);        
+}

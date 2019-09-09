@@ -77,7 +77,8 @@ namespace ElkAlarm
     public enum eElkZoneEventID
     {
         StatusChange = 0,
-        TypeChange = 1
+        TypeChange = 1,
+        DescriptionChange = 2
     }
 
     //Area -------------------------------------------------------
@@ -109,9 +110,10 @@ namespace ElkAlarm
     }
     public enum eElkAreaEventID
     {
-        armStatusChange = 0,
-        stateStatusChange = 1,
-        alarmStatusChange = 2
+        ArmStatusChange = 0,
+        StateStatusChange = 1,
+        AlarmStatusChange = 2,
+        DescriptionChange = 3
     }
     
 

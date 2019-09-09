@@ -5,9 +5,8 @@
 
 Digital_Input _skip_,Zone_Bypass, Zone_Unbypass, Zone_Bypass_Toggle;
 
-Digital_Output _skip_, Zone_Status_Is_Normal, Zone_Status_Is_Trouble, Zone_Status_Is_Violated, Zone_Status_Is_Bypassed;
-Digital_Output _skip_, Zone_Type_Is_Unconfigured, Zone_Type_Is_Open, Zone_Type_Is_EOL, Zone_Type_Is_Short;
-String_Output _skip_, Zone_Status_String, Zone_Type_String;
+Digital_Output _skip_, Zone_Status[4], Zone_Type[4];
+String_Output _skip_, Zone_Description;
 
 ElkZoneSimpl zone;
 
@@ -29,64 +28,33 @@ Push Zone_Bypass_Toggle
     zone.SetBypassToggle();
 }
 
-Callback Function onStatusChange(integer status)
+Callback Function onStatusChange(integer index)
 {
-    Zone_Status_Is_Normal = status = 0;
-    Zone_Status_Is_Trouble = status = 1;
-    Zone_Status_Is_Violated = status = 2;
-    Zone_Status_Is_Bypassed = status = 3;
-
-    switch (status)
-    {
-        case (0):
-        {
-            Zone_Status_String = "Normal";
-        }
-        case (1):
-        {
-            Zone_Status_String = "Trouble";
-        }
-        case (2):
-        {
-            Zone_Status_String = "Violated";
-        }
-        case (3):
-        {
-            Zone_Status_String = "Bypassed";
-        }
-    }
+    setarray(Zone_Status,0);
+    Zone_Status[index+1] = 1;
+    // Normal = 0,
+    // Trouble = 1,
+    // Violated = 2,
+    // Bypassed = 3
 }
-Callback Function onTypeChange(integer type)
+Callback Function onTypeChange(integer index)
 {
-    Zone_Type_Is_Unconfigured = type = 0;
-    Zone_Type_Is_Open = type = 1;
-    Zone_Type_Is_EOL = type = 2;
-    Zone_Type_Is_Short = type = 3;
-
-    switch (type)
-    {
-        case (0):
-        {
-            Zone_Type_String = "Unconfigured";
-        }
-        case (1):
-        {
-            Zone_Type_String = "Open";
-        }
-        case (2):
-        {
-            Zone_Type_String = "EOL";
-        }
-        case (3):
-        {
-            Zone_Type_String = "Short";
-        }
-    }
+    setarray(Zone_Type,0);
+    Zone_Type[index+1] = 1;
+    // Unconfigured = 0,
+    // Open = 1,
+    // EOL = 2,
+    // Short = 3
+}
+Callback Function onDescriptionChange(string desc)
+{
+    Zone_Description = desc;
 }
 
 Function Main()
 {              
     RegisterDelegate(zone, newStatusChange, onStatusChange);
     RegisterDelegate(zone, newTypeChange, onTypeChange);
+    RegisterDelegate(zone, newDescriptionChange, onDescriptionChange);
     zone.Initialize(ZoneNumber);        
 }

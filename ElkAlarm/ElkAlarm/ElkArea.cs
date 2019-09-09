@@ -17,13 +17,56 @@ namespace ElkAlarm
 
         public event EventHandler<ElkAreaEventArgs> ElkAreaEvent;
 
+        public eAreaArmStatus getArmStatus { get { return _armStatus; } }
+        public eAreaStateStatus getStateStatus { get { return _stateStatus; } }
+        public eAreaAlarmStatus getAlarmStatus { get { return _alarmStatus; } }
+        public string getAreaDescription { get { return _description; } }
+        public bool getIsRegistered { get { return _registered; } }
 
+        public ElkArea(int area)
+        {
+            _aNum = area;
+            if (ElkProcessor.RegisterZone(_aNum))
+            {
+                ElkProcessor.Areas[_aNum].OnNewEvent += new EventHandler<ElkInternalEventsArgs>(ElkArea_OnNewEvent);
+                _registered = true;
+            }
+        }
+
+        public void SetArm(eAreaArmSet arm)
+        {
+            //TODO: set area arm state
+        }
+        
+
+
+        void ElkArea_OnNewEvent(object sender, ElkInternalEventsArgs e)
+        {
+            if (e.Name == "")
+            {
+                //TODO: Add event stuff from processor
+                
+            }
+        }
 
     }
 
     public class Area
     {
         public int AreaNum;
+    }
+
+    public enum eAreaArmSet
+    {
+        ArmAway = 0,
+        ArmStay = 1,
+        ArmNight = 2,
+        ArmStayInstant = 3,
+        ArmNightInstant = 4,
+        ArmVacation = 5,
+        Disarm = 6,
+        ArmExitButton = 7,
+        ArmStayButton = 8
     }
 
     public enum eAreaArmStatus

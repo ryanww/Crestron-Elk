@@ -12,6 +12,8 @@ namespace ElkAlarm
         public StatusChange newStatusChange { get; set; }
         public delegate void TypeChange(ushort type);
         public TypeChange newTypeChange { get; set; }
+        public delegate void DescriptionChange(SimplSharpString description);
+        public DescriptionChange newDescriptionChange { get; set; }
 
         private ElkZone zone;
 
@@ -41,6 +43,10 @@ namespace ElkAlarm
                 case eElkZoneEventID.TypeChange:
                     if (newTypeChange != null)
                         newTypeChange((ushort)zone.getZoneType);
+                    break;
+                case eElkZoneEventID.DescriptionChange:
+                    if (newDescriptionChange != null)
+                        newDescriptionChange((SimplSharpString)zone.getZoneDescription);
                     break;
             }
         }
