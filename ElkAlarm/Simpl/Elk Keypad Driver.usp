@@ -1,0 +1,38 @@
+#SYMBOL_NAME "Elk Keypad Driver"
+
+#INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
+#USER_SIMPLSHARP_LIBRARY "ElkAlarm"
+
+Digital_Input _skip_,Backspace, Clear, _skip_, KP[10];
+
+string_output _skip_, Keypad_Text_Secure;
+
+ElkKeypadSimpl keypad;
+
+Push KP
+{
+    integer key;
+    key = getlastmodifiedarrayindex();
+    keypad.addCodeKey(key);
+}
+
+Push Backspace
+{
+    keypad.backspaceCode();
+}
+
+Push Clear
+{
+    keypad.clearCode();
+}
+
+Callback Function onTextChange(string kp_text)
+{
+    Keypad_Text_Secure = kp_text;
+}
+
+Function Main()
+{              
+    RegisterDelegate(keypad, newTextChange, onTextChange);
+    keypad.Initialize();        
+}

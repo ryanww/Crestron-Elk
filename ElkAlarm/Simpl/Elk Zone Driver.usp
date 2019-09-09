@@ -1,0 +1,92 @@
+#SYMBOL_NAME "Elk Zone Driver"
+
+#INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
+#USER_SIMPLSHARP_LIBRARY "ElkAlarm"
+
+Digital_Input _skip_,Zone_Bypass, Zone_Unbypass, Zone_Bypass_Toggle;
+
+Digital_Output _skip_, Zone_Status_Is_Normal, Zone_Status_Is_Trouble, Zone_Status_Is_Violated, Zone_Status_Is_Bypassed;
+Digital_Output _skip_, Zone_Type_Is_Unconfigured, Zone_Type_Is_Open, Zone_Type_Is_EOL, Zone_Type_Is_Short;
+String_Output _skip_, Zone_Status_String, Zone_Type_String;
+
+ElkZoneSimpl zone;
+
+integer_parameter ZoneNumber;
+
+
+
+Push Zone_Bypass
+{
+    zone.SetBypassState(1);
+}
+
+Push Zone_Unbypass
+{
+    zone.SetBypassState(0);
+}
+Push Zone_Bypass_Toggle
+{
+    zone.SetBypassToggle();
+}
+
+Callback Function onStatusChange(integer status)
+{
+    Zone_Status_Is_Normal = status = 0;
+    Zone_Status_Is_Trouble = status = 1;
+    Zone_Status_Is_Violated = status = 2;
+    Zone_Status_Is_Bypassed = status = 3;
+
+    switch (status)
+    {
+        case (0):
+        {
+            Zone_Status_String = "Normal";
+        }
+        case (1):
+        {
+            Zone_Status_String = "Trouble";
+        }
+        case (2):
+        {
+            Zone_Status_String = "Violated";
+        }
+        case (3):
+        {
+            Zone_Status_String = "Bypassed";
+        }
+    }
+}
+Callback Function onTypeChange(integer type)
+{
+    Zone_Type_Is_Unconfigured = type = 0;
+    Zone_Type_Is_Open = type = 1;
+    Zone_Type_Is_EOL = type = 2;
+    Zone_Type_Is_Short = type = 3;
+
+    switch (type)
+    {
+        case (0):
+        {
+            Zone_Type_String = "Unconfigured";
+        }
+        case (1):
+        {
+            Zone_Type_String = "Open";
+        }
+        case (2):
+        {
+            Zone_Type_String = "EOL";
+        }
+        case (3):
+        {
+            Zone_Type_String = "Short";
+        }
+    }
+}
+
+Function Main()
+{              
+    RegisterDelegate(zone, newStatusChange, onStatusChange);
+    RegisterDelegate(zone, newTypeChange, onTypeChange);
+    zone.Initialize(ZoneNumber);        
+}
