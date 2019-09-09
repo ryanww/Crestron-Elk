@@ -117,12 +117,12 @@ namespace ElkAlarm
     }
     
 
-    //Keypad ---------------------------------------------------------
-    public class ElkKeypadEventArgs : EventArgs
+    //Password ---------------------------------------------------------
+    public class ElkPasswordEventArgs : EventArgs
     {
         public string Data_String;
 
-        public ElkKeypadEventArgs(string newString)
+        public ElkPasswordEventArgs(string newString)
         {
             this.Data_String = newString;
         }

@@ -68,8 +68,8 @@
     <Compile Include="ElkArea.cs" />
     <Compile Include="ElkAreaSimpl.cs" />
     <Compile Include="ElkEvents.cs" />
-    <Compile Include="ElkKeypad.cs" />
-    <Compile Include="ElkKeypadSimpl.cs" />
+    <Compile Include="ElkPassword.cs" />
+    <Compile Include="ElkPasswordSimpl.cs" />
     <Compile Include="ElkProcessor.cs" />
     <Compile Include="ElkZoneSimpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

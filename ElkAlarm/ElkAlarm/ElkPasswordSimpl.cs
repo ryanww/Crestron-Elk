@@ -6,20 +6,20 @@ using Crestron.SimplSharp;
 
 namespace ElkAlarm
 {
-    public class ElkKeypadSimpl
+    public class ElkPasswordSimpl
     {
         public delegate void TextChange(SimplSharpString text);
         public TextChange newTextChange { get; set; }
 
-        private ElkKeypad kp;
+        private ElkPassword pw;
 
         public void Initialize()
         {
-            kp = new ElkKeypad();
-            kp.ElkKeypadEvent += new EventHandler<ElkKeypadEventArgs>(kp_ElkKeypadEvent);
+            pw = new ElkPassword();
+            pw.ElkPasswordEvent += new EventHandler<ElkPasswordEventArgs>(pw_ElkPasswordEvent);
         }
 
-        private void kp_ElkKeypadEvent(object sender, ElkKeypadEventArgs e)
+        private void pw_ElkPasswordEvent(object sender, ElkPasswordEventArgs e)
         {
             if (newTextChange != null)
                 newTextChange((SimplSharpString)e.Data_String);
@@ -27,15 +27,15 @@ namespace ElkAlarm
 
         public void addCodeKey(int key)
         {
-            kp.addToKeypadCode(Convert.ToString(key));
+            pw.addToKeypadCode(Convert.ToString(key));
         }
         public void clearCode()
         {
-            kp.clearKeypadCode();
+            pw.clearKeypadCode();
         }
         public void backspaceCode()
         {
-            kp.backspaceKeypadCode();
+            pw.backspaceKeypadCode();
         }
     }
 }

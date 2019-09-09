@@ -6,14 +6,14 @@ using Crestron.SimplSharp;
 
 namespace ElkAlarm
 {
-    public class ElkKeypad
+    public class ElkPassword
     {
         private string _code = "";
         private string _codeProtected = "";
 
         public string getCodeProtected { get { return _codeProtected; } }
 
-        public event EventHandler<ElkKeypadEventArgs> ElkKeypadEvent;
+        public event EventHandler<ElkPasswordEventArgs> ElkPasswordEvent;
 
         public void addToKeypadCode(string code)
         {
@@ -42,7 +42,7 @@ namespace ElkAlarm
             {
                 _codeProtected += "*";
             }
-            ElkKeypadEvent(this, new ElkKeypadEventArgs(_codeProtected));
+            ElkPasswordEvent(this, new ElkPasswordEventArgs(_codeProtected));
         }
         private string TrimLastCharacter(string str)
         {
