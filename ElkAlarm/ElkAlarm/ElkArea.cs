@@ -42,10 +42,36 @@ namespace ElkAlarm
 
         void ElkArea_OnNewEvent(object sender, ElkInternalEventsArgs e)
         {
-            if (e.Name == "")
+            switch (e.Name)
             {
-                //TODO: Add event stuff from processor
-                
+                case "STATUS":
+                    switch ((int)e.Data)
+                    {
+                        case 0: { _armStatus = eAreaArmStatus.Disarmed; } break;
+                        case 1: { _armStatus = eAreaArmStatus.ArmedAway; } break;
+                        case 2: { _armStatus = eAreaArmStatus.ArmedStay; } break;
+                        case 3: { _armStatus = eAreaArmStatus.ArmedStayInstant; } break;
+                        case 4: { _armStatus = eAreaArmStatus.ArmedNight; } break;
+                        case 5: { _armStatus = eAreaArmStatus.ArmedNightInstant; } break;
+                        case 6: { _armStatus = eAreaArmStatus.ArmedVacation; } break;
+                    }
+                    break;
+                case "STATE":
+                    switch ((int)e.Data)
+                    {
+                        case 0: { _stateStatus = eAreaStateStatus.NotReadyToArm; } break;
+                        case 1: { _stateStatus = eAreaStateStatus.ReadyToArm; } break;
+                        case 2: { _stateStatus = eAreaStateStatus.ForceArmZoneFault; } break;
+                        //case 3: { _stateStatus = eAreaStateStatus.Armed; } break;
+                        case 4: { _stateStatus = eAreaStateStatus.Armed; } break;
+                        case 5: { _stateStatus = eAreaStateStatus.ForceArmed; } break;
+                        case 6: { _stateStatus = eAreaStateStatus.ArmedWithBypass; } break;
+                    }
+                    break;
+                case "ALARM":
+                    _alarmStatus = (eAreaAlarmStatus)Enum.Parse(typeof(eAreaStateStatus), Convert.ToString(e.Data), true);
+                    break;
+
             }
         }
 

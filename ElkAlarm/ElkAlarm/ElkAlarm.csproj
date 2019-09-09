@@ -71,6 +71,7 @@
     <Compile Include="ElkPassword.cs" />
     <Compile Include="ElkPasswordSimpl.cs" />
     <Compile Include="ElkProcessor.cs" />
+    <Compile Include="ElkProcessorSimpl.cs" />
     <Compile Include="ElkZoneSimpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ElkZone.cs" />

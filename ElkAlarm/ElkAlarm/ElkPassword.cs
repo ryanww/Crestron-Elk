@@ -21,7 +21,7 @@ namespace ElkAlarm
             {
                 _code += code;
                 updateCodeProtected();
-                ElkProcessor.setKeypadText(code);
+                ElkProcessor.setPasswordText(code);
             }
         }
         public void clearKeypadCode()

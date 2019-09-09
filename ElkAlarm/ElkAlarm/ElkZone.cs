@@ -67,10 +67,63 @@ namespace ElkAlarm
 
         void ElkZone_OnNewEvent(object sender, ElkInternalEventsArgs e)
         {
-            if (e.Name == "")
+            if (e.Name == "STATE")
             {
-                //TODO: Add event stuff from processor
-                //type, status and description
+                switch ((int)e.Data)
+                {
+                    case 0:
+                        _status = eZoneStatus.Normal;
+                        _type = eZoneType.Unconfigured;
+                        break;
+                    case 1:
+                        _status = eZoneStatus.Normal;
+                        _type = eZoneType.Open;
+                        break;
+                    case 2:
+                        _status = eZoneStatus.Normal;
+                        _type = eZoneType.EOL;
+                        break;
+                    case 3:
+                        _status = eZoneStatus.Normal;
+                        _type = eZoneType.Short;
+                        break;
+                    case 5:
+                        _status = eZoneStatus.Trouble;
+                        _type = eZoneType.EOL;
+                        break;
+                    case 6:
+                        _status = eZoneStatus.Trouble;
+                        _type = eZoneType.Open;
+                        break;
+                    case 7:
+                        _status = eZoneStatus.Trouble;
+                        _type = eZoneType.Short;
+                        break;
+                    case 9:
+                        _status = eZoneStatus.Violated;
+                        _type = eZoneType.Open;
+                        break;
+                    case 10:
+                        _status = eZoneStatus.Violated;
+                        _type = eZoneType.EOL;
+                        break;
+                    case 11:
+                        _status = eZoneStatus.Violated;
+                        _type = eZoneType.Short;
+                        break;
+                    case 13:
+                        _status = eZoneStatus.Bypassed;
+                        _type = eZoneType.Open;
+                        break;
+                    case 14:
+                        _status = eZoneStatus.Bypassed;
+                        _type = eZoneType.EOL;
+                        break;
+                    case 15:
+                        _status = eZoneStatus.Bypassed;
+                        _type = eZoneType.Short;
+                        break;
+                }
             }
         }
     }

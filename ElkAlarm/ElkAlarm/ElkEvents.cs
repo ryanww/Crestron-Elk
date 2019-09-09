@@ -128,4 +128,30 @@ namespace ElkAlarm
         }
     }
 
+
+    //Simpl
+    public class SimplEvents
+    {
+        //private event EventHandler<SimplEventArgs> onNewEvent = delegate { };
+
+        //public event EventHandler<SimplEventArgs> OnNewEvent
+        //{
+        //    add
+        //    {
+        //        if (!onNewEvent.GetInvocationList().Contains(value))
+        //        {
+        //            onNewEvent += value;
+        //        }
+        //    }
+        //    remove
+        //    {
+        //        onNewEvent -= value;
+        //    }
+        //}
+
+        //internal void Fire(SimplEventArgs e)
+        //{
+        //    onNewEvent(null, e);
+        //}
+    }
 }
