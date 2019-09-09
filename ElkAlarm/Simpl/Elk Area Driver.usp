@@ -104,7 +104,7 @@ Function Main()
 {              
     RegisterDelegate(area, newArmStatusChange, onArmStatusChange);
     RegisterDelegate(area, newStateStatusChange, onStateStatusChange);
-    RegisterDelegate(area, newAlarmStatusChange, onAlarmStatusChange)
+    RegisterDelegate(area, newAlarmStatusChange, onAlarmStatusChange);
     RegisterDelegate(area, newDescriptionChange, onDescriptionChange);
     area.Initialize(AreaNumber);        
 }
