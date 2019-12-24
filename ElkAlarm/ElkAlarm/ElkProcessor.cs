@@ -3,7 +3,6 @@ using System.Text;
 using System.Collections.Generic;
 using Crestron.SimplSharp;
 using Crestron.SimplSharp.CrestronIO;
-using Crestron.SimplSharp;                          				// For Basic SIMPL# Classes
 using TCP_Client;
 
 
@@ -24,8 +23,11 @@ namespace ElkAlarm
 
         private static string pwCode;
 
-        internal static Dictionary<int, InternalEvents> Zones = new Dictionary<int, InternalEvents>();
-        internal static Dictionary<int, InternalEvents> Areas = new Dictionary<int, InternalEvents>();
+        internal static List<Area> areas;
+        internal static List<Zone> zones;
+
+        //internal static Dictionary<int, InternalEvents> Zones = new Dictionary<int, InternalEvents>();
+        //internal static Dictionary<int, InternalEvents> Areas = new Dictionary<int, InternalEvents>();
         internal static Dictionary<string, SimplEvents> SimplClients = new Dictionary<string, SimplEvents>();
 
 
@@ -40,6 +42,15 @@ namespace ElkAlarm
                 responseQueue = new CrestronQueue<string>();
                 commandQueueTimer = new CTimer(CommandQueueDequeue, null, 0, 50);
                 responseQueueTimer = new CTimer(ResponseQueueDequeue, null, 0, 50);
+
+                for (int i=0; i < 8; i++)
+                {
+                    areas.Add(new Area());
+                }
+                for (int i = 0; i < 208; i++)
+                {
+                    zones.Add(new Zone());
+                }
 
                 client = new TCPClientDevice();
                 client.ID = 1;
@@ -107,41 +118,41 @@ namespace ElkAlarm
                     //Zones
                     if (returnString.Contains("D6ZS")) //All Zones
                     {
-                        char[] arr;
-                        arr = returnString.ToCharArray();
-                        for(int i=4; i<returnString.Length-1; i++)
-                        {
-                            if (Zones.ContainsKey(i-3))
-                            {
-                                Zones[i].Fire(new ElkInternalEventsArgs("STATE",hexToInt(arr[i]),""));
-                            }
-                        }
+                        //char[] arr;
+                        //arr = returnString.ToCharArray();
+                        //for(int i=4; i<returnString.Length-1; i++)
+                        //{
+                        //    if (Zones.ContainsKey(i-3))
+                        //    {
+                        //        Zones[i].Fire(new ElkInternalEventsArgs("STATE",hexToInt(arr[i]),""));
+                        //    }
+                        //}
                     }
                     else if (returnString.Contains("0AZC")) //Single Zone
                     {
-                        int z = Convert.ToInt16(returnString.Substring(4, 3));
-                        char s = returnString.ToCharArray()[3];
-                        if (Zones.ContainsKey(z))
-                        {
-                            Zones[z].Fire(new ElkInternalEventsArgs("STATE", hexToInt(s), ""));
-                        }
+                        //int z = Convert.ToInt16(returnString.Substring(4, 3));
+                        //char s = returnString.ToCharArray()[3];
+                        //if (Zones.ContainsKey(z))
+                        //{
+                        //    Zones[z].Fire(new ElkInternalEventsArgs("STATE", hexToInt(s), ""));
+                        //}
                     }
 
                     //Area
                     else if (returnString.Contains("1EAS")) //Area Status
                     {
-                        for (int i = 1; i <= 8; i++)
-                        {
-                            int armedStatus = hexToInt(returnString.ToCharArray()[i + 4]);
-                            int armUpState = hexToInt(returnString.ToCharArray()[i + 4 + 8]);
-                            int alarmState = hexToInt(returnString.ToCharArray()[i + 4 + 16]);
-                            if (Areas.ContainsKey(i))
-                            {
-                                Areas[i].Fire(new ElkInternalEventsArgs("STATUS", armedStatus, ""));
-                                Areas[i].Fire(new ElkInternalEventsArgs("STATE", armUpState, ""));
-                                Areas[i].Fire(new ElkInternalEventsArgs("ALARM", alarmState, ""));
-                            }
-                        }
+                        //for (int i = 1; i <= 8; i++)
+                        //{
+                        //    int armedStatus = hexToInt(returnString.ToCharArray()[i + 4]);
+                        //    int armUpState = hexToInt(returnString.ToCharArray()[i + 4 + 8]);
+                        //    int alarmState = hexToInt(returnString.ToCharArray()[i + 4 + 16]);
+                        //    if (Areas.ContainsKey(i))
+                        //    {
+                        //        Areas[i].Fire(new ElkInternalEventsArgs("STATUS", armedStatus, ""));
+                        //        Areas[i].Fire(new ElkInternalEventsArgs("STATE", armUpState, ""));
+                        //        Areas[i].Fire(new ElkInternalEventsArgs("ALARM", alarmState, ""));
+                        //    }
+                        //}
                     }
 
                 }
@@ -168,25 +179,19 @@ namespace ElkAlarm
         }
         static void client_ResponseString(string response, int id)
         {
-            if (debug)
-                //CrestronConsole.PrintLine("RX ID:{0} - {1}", id, response);
+            //sendDebug(string.Format("RX ID:{0} - {1}", id, response));
             ParseResponse(response);
         }
         static void client_ConnectionStatus(int status, int id)
         {
             if (status == 2 && !isConnected)
             {
-                //ErrorLog.Notice("QsysProcessor is connected.");
                 isConnected = true;
-
                 foreach (var item in SimplClients)
                 {
                     //item.Value.Fire(new SimplEventArgs(eQscSimplEventIds.IsConnected, "true", 1));
                 }
-
                 CrestronEnvironment.Sleep(1500);
-
-                
 
                 //CoreModuleInit();
 
@@ -199,7 +204,7 @@ namespace ElkAlarm
             }
             else if (isConnected && status != 2)
             {
-                //ErrorLog.Error("QsysProcessor disconnected!");
+                sendDebug("Elk Disconnected");
                 isConnected = false;
                 isInitialized = false;
                 foreach (var item in SimplClients)
@@ -219,47 +224,47 @@ namespace ElkAlarm
                 chksm = chksm + arr[i];
             }
             chksm = 256 - (chksm % 256);
-            return String.Format("%s%02X", originalCommand, chksm);
+            return String.Format("{0:X2}%s%02X", originalCommand.Length, originalCommand, chksm);
         }
 
         //Zones -----------------------------------------------------------
-        static internal bool RegisterZone(int zone)
-        {
-            try
-            {
-                lock (Zones)
-                {
-                    Zones.Add(zone, new InternalEvents());
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                ErrorLog.Error("Elk Error: Couldn't add zone {0} - {1}", zone, e.Message);
-                return false;
-            }
-        }
+        //static internal bool RegisterZone(int zone)
+        //{
+        //    //try
+        //    //{
+        //    //    lock (Zones)
+        //    //    {
+        //    //        Zones.Add(zone, new InternalEvents());
+        //    //        return true;
+        //    //    }
+        //    //}
+        //    //catch (Exception e)
+        //    //{
+        //    //    ErrorLog.Error("Elk Error: Couldn't add zone {0} - {1}", zone, e.Message);
+        //    //    return false;
+        //    //}
+        //}
         //Zone initialize
         //06zs004D\x0D\x0A
 
 
         //Areas -----------------------------------------------------------
-        static internal bool RegisterArea(int area)
-        {
-            try
-            {
-                lock (Areas)
-                {
-                    Areas.Add(area, new InternalEvents());
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                ErrorLog.Error("Elk Error: Couldn't add area {0} - {1}", area, e.Message);
-                return false;
-            }
-        }
+        //static internal bool RegisterArea(int area)
+        //{
+        //    //try
+        //    //{
+        //    //    lock (Areas)
+        //    //    {
+        //    //        Areas.Add(area, new InternalEvents());
+        //    //        return true;
+        //    //    }
+        //    //}
+        //    //catch (Exception e)
+        //    //{
+        //    //    ErrorLog.Error("Elk Error: Couldn't add area {0} - {1}", area, e.Message);
+        //    //    return false;
+        //    //}
+        //}
 
 
         //Password --------------------------------------------------------

@@ -24,12 +24,12 @@ namespace ElkAlarm
 
         public ElkZone(int zone)
         {
-            _zNum = zone;
-            if (ElkProcessor.RegisterZone(_zNum))
-            {
-                ElkProcessor.Zones[_zNum].OnNewEvent += new EventHandler<ElkInternalEventsArgs>(ElkZone_OnNewEvent);
-                _registered = true;
-            }
+            //_zNum = zone;
+            //if (ElkProcessor.RegisterZone(_zNum))
+            //{
+            //    ElkProcessor.Zones[_zNum].OnNewEvent += new EventHandler<ElkInternalEventsArgs>(ElkZone_OnNewEvent);
+            //    _registered = true;
+            //}
         }
 
         public void BypassStateSet (bool state)
