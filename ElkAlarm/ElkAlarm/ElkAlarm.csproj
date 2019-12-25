@@ -65,14 +65,12 @@
     <Reference Include="TCPClient, Version=1.0.0.22405, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ElkCore.cs" />
     <Compile Include="ElkArea.cs" />
-    <Compile Include="ElkAreaSimpl.cs" />
     <Compile Include="ElkEvents.cs" />
+    <Compile Include="ElkPanelSimpl.cs" />
     <Compile Include="ElkPassword.cs" />
-    <Compile Include="ElkPasswordSimpl.cs" />
-    <Compile Include="ElkProcessor.cs" />
-    <Compile Include="ElkProcessorSimpl.cs" />
-    <Compile Include="ElkZoneSimpl.cs" />
+    <Compile Include="ElkPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ElkZone.cs" />
     <None Include="Properties\ControlSystem.cfg" />

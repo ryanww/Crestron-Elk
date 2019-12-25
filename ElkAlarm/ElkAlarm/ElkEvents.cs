@@ -47,74 +47,9 @@ namespace ElkAlarm
     }
 
 
-    //Zone -------------------------------------------------------
-    public class ElkZoneEventArgs : EventArgs
-    {
-        public int Zone;
-        public eElkZoneEventID EventID;
-        public string Data_String;
-        public bool Data_Bool;
-        public int Data_Int;
 
-        /// <summary>
-        /// Default constructor for Elk Zone Events
-        /// </summary>
-        /// <param name="zone">Zone ID</param>
-        /// <param name="eventID">Event Type</param>
-        /// <param name="sData">String Data</param>
-        /// <param name="bData">Bool Data</param>
-        /// <param name="iData">Integer Data</param>
-        public ElkZoneEventArgs(int zone, eElkZoneEventID eventID, string sData, bool bData, int iData)
-        {
-            this.Zone = zone;
-            this.EventID = eventID;
-            this.Data_String = sData;
-            this.Data_Bool = bData;
-            this.Data_Int = iData;
-        }
-        
-    }
-    public enum eElkZoneEventID
-    {
-        StatusChange = 0,
-        TypeChange = 1,
-        DescriptionChange = 2
-    }
 
-    //Area -------------------------------------------------------
-    public class ElkAreaEventArgs : EventArgs
-    {
-        public int Area;
-        public eElkAreaEventID EventID;
-        public string Data_String;
-        public bool Data_Bool;
-        public int Data_Int;
 
-        /// <summary>
-        /// Default constructor for Elk Area Events
-        /// </summary>
-        /// <param name="zone">Area ID</param>
-        /// <param name="eventID">Event Type</param>
-        /// <param name="sData">String Data</param>
-        /// <param name="bData">Bool Data</param>
-        /// <param name="iData">Integer Data</param>
-        public ElkAreaEventArgs(int zone, eElkAreaEventID eventID, string sData, bool bData, int iData)
-        {
-            this.Area = zone;
-            this.EventID = eventID;
-            this.Data_String = sData;
-            this.Data_Bool = bData;
-            this.Data_Int = iData;
-        }
-
-    }
-    public enum eElkAreaEventID
-    {
-        ArmStatusChange = 0,
-        StateStatusChange = 1,
-        AlarmStatusChange = 2,
-        DescriptionChange = 3
-    }
     
 
     //Password ---------------------------------------------------------
@@ -132,26 +67,46 @@ namespace ElkAlarm
     //Simpl
     public class SimplEvents
     {
-        //private event EventHandler<SimplEventArgs> onNewEvent = delegate { };
+        private event EventHandler<SimplEventArgs> onNewEvent = delegate { };
 
-        //public event EventHandler<SimplEventArgs> OnNewEvent
-        //{
-        //    add
-        //    {
-        //        if (!onNewEvent.GetInvocationList().Contains(value))
-        //        {
-        //            onNewEvent += value;
-        //        }
-        //    }
-        //    remove
-        //    {
-        //        onNewEvent -= value;
-        //    }
-        //}
+        public event EventHandler<SimplEventArgs> OnNewEvent
+        {
+            add
+            {
+                if (!onNewEvent.GetInvocationList().Contains(value))
+                {
+                    onNewEvent += value;
+                }
+            }
+            remove
+            {
+                onNewEvent -= value;
+            }
+        }
 
-        //internal void Fire(SimplEventArgs e)
-        //{
-        //    onNewEvent(null, e);
-        //}
+        internal void Fire(SimplEventArgs e)
+        {
+            onNewEvent(null, e);
+        }
+    }
+
+    public class SimplEventArgs : EventArgs
+    {
+        public SimplSharpString StringData;
+        public ushort IntData;
+        public eElkSimplEventIds ID;
+
+        public SimplEventArgs(eElkSimplEventIds id, SimplSharpString stringData, ushort intData)
+        {
+            this.StringData = stringData;
+            this.IntData = intData;
+            this.ID = id;
+        }
+    }
+
+    public enum eElkSimplEventIds
+    {
+        IsRegistered = 1,
+        IsConnected = 2
     }
 }

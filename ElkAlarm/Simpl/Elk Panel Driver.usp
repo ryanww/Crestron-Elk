@@ -1,0 +1,46 @@
+#SYMBOL_NAME "Elk Panel Driver"
+
+#INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
+#USER_SIMPLSHARP_LIBRARY "ElkAlarm"
+
+Digital_Input Initialize;
+
+Digital_Output IsInitialized, IsConnected;
+String_Parameter _skip_, _skip_,_skip_,_skip_,_skip_,_skip_,_skip_,_skip_,_skip_,_skip_, Host[100];
+Integer_Parameter PanelID, Port, DebugMode;
+
+ElkPanelSimpl panel;
+
+integer waitTillStart;
+
+Push Initialize
+{                
+	while(!waitTillStart)
+	{}
+	panel.SetDebug(DebugMode);
+    panel.Initialize(PanelID, host, port);
+}
+
+Callback Function NewIsRegistered(integer value)
+{
+	if(value = 1)
+		IsInitialized = ON;
+	else
+		IsInitialized = OFF;
+}     
+
+Callback Function NewIsConnected(integer value)
+{
+	if(value = 1)
+		IsConnected = ON;
+	else
+		IsConnected = OFF;
+}
+
+Function Main()
+{
+	RegisterDelegate(panel, onIsRegistered, NewIsRegistered);  
+	RegisterDelegate(panel, onIsConnected, NewIsConnected);
+	WaitForInitializationComplete();
+	waitTillStart = 1;
+}
