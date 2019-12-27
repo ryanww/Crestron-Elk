@@ -42,7 +42,7 @@ namespace ElkAlarm
 
             this.SendDebug(string.Format("Added Panel {0} @ {1}:{2} & initialize", _panelId, _host, _port));
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 1; i <= 8; i++)
             {
                 if (!Areas.ContainsKey(i))
                 {
@@ -51,7 +51,7 @@ namespace ElkAlarm
                     Areas.Add(i, a);
                 }
             }
-            for (int i = 0; i < 208; i++)
+            for (int i = 1; i <= 208; i++)
             {
                 if (!Zones.ContainsKey(i))
                 {
@@ -212,134 +212,165 @@ namespace ElkAlarm
         //Parsing
         private void ParseInternalResponse(string returnString)
         {
-            if (returnString.Length > 0)
+            if (returnString.Length <=2)
+                return;
+
+
+            string repType = returnString.Substring(0, 6);
+            string data = "";
+            CrestronConsole.PrintLine("parse {0}", repType);
+            int zoneIndex = 0;
+            
+            //All Zone Status (tested)
+            if (repType.Contains("ZS"))
             {
-                string ps = returnString.Substring(2);
-                int zoneIndex;
-                try
+                data = returnString.Substring(repType.IndexOf("ZS"));
+                SendDebug("Got ZS");
+                char[] zsArray;
+                zsArray = data.Substring(2, 208).ToCharArray();
+                for (int i = 0; i < zsArray.Length; i++)
+                    if (Zones.ContainsKey(i + 1))
+                        Zones[i + 1].internalSetZoneStatus(hexToInt(zsArray[i]));
+            }
+
+            //Single Zone Change (tested)
+            if (repType.Contains("ZC"))
+            {
+                data = returnString.Substring(repType.IndexOf("ZC"));
+                SendDebug("Got ZC");
+                zoneIndex = int.Parse(data.Substring(2, 3));
+                if (Zones.ContainsKey(zoneIndex))
+                    Zones[zoneIndex].internalSetZoneStatus(hexToInt(data.ToCharArray()[5]));
+            }
+
+
+            //Zone Definitions (tested)
+            if (repType.Contains("ZD"))
+            {
+                data = returnString.Substring(repType.IndexOf("ZD"));
+                SendDebug("Got ZD");
+                char[] zdArray;
+                zdArray = data.Substring(2, 208).ToCharArray();
+                for (int i = 0; i < zdArray.Length; i++)
+                    if (Zones.ContainsKey(i + 1))
+                        Zones[i + 1].internalSetZoneDefinition((int)zdArray[i] - 48);
+            }
+
+            //Zone Bypass (tested)
+            if (repType.Contains("ZB"))
+            {
+                data = returnString.Substring(repType.IndexOf("ZB"));
+                SendDebug("Got ZB");
+                zoneIndex = int.Parse(data.Substring(2, 3));
+                if (Zones.ContainsKey(zoneIndex))
                 {
-                    switch (ps.Substring(0, 2))
+                    if (data.ToCharArray()[5] == '1')
+                        Zones[zoneIndex].internalSetBypass(true);
+                    else
+                        Zones[zoneIndex].internalSetBypass(false);
+                }
+            }
+
+            //Zone Voltage (tested)
+            if (repType.Contains("ZV"))
+            {
+                data = returnString.Substring(repType.IndexOf("ZV"));
+                SendDebug("Got ZV");
+                zoneIndex = int.Parse(data.Substring(2, 3));
+                double zoneVoltage = int.Parse(data.Substring(5, 3));
+                zoneVoltage /= 10;
+                if (Zones.ContainsKey(zoneIndex))
+                    Zones[zoneIndex].internalSetZoneVoltage(zoneVoltage);
+            }
+
+            //Zone Partition (tested)
+            if (repType.Contains("ZP"))
+            {
+                data = returnString.Substring(repType.IndexOf("ZP"));
+                SendDebug("Got ZP");
+                char[] zpArray;
+                zpArray = data.Substring(2, 208).ToCharArray();
+                for (int i = 0; i < zpArray.Length; i++)
+                    if (Zones.ContainsKey(i+1))
+                        Zones[i+1].internalSetZoneArea(hexToInt(zpArray[i]));
+            }
+
+            //Area Status (tested)
+            if (repType.Contains("AS"))
+            {
+                data = returnString.Substring(repType.IndexOf("AS"));
+                SendDebug("Got AS");
+                string armedStatusString = data.Substring(2, 8);
+                string armUpStateString = data.Substring(10, 8);
+                string alarmStateString = data.Substring(18, 8);
+                int alarmCountdownTime = int.Parse(data.Substring(26, 2));
+                for (int i = 0; i < 8; i++)
+                {
+                    if (Areas.ContainsKey(i + 1))
                     {
-                        case "ZS": //All Zone Status
-                            SendDebug("Got ZS");
-                            char[] zsArray;
-                            zsArray = ps.Substring(2, 208).ToCharArray();
-                            for (int i = 0; i < zsArray.Length; i++)
-                                Zones[i].internalSetZoneStatus(zsArray[i] - 48);
-                            break;
-
-                        case "ZC": //Single Zone Change
-                            SendDebug("Got ZS");
-                            zoneIndex = int.Parse(ps.Substring(2, 3)) - 1;
-                            int zoneStatus = ps.ToCharArray()[5]-48;
-                            Zones[zoneIndex].internalSetZoneStatus(zoneStatus);
-                            break;
-                        
-                        case "ZD": //Zone Definitions
-                            SendDebug("Got ZD");
-                            char[] zdArray;
-                            zdArray = ps.Substring(4, 208).ToCharArray();
-                            for (int i = 0; i < zdArray.Length; i++)
-                                Zones[i].internalSetZoneDefinition(zdArray[i] - 48);
-                            break;
-
-                        case "ZB":
-                            SendDebug("Got ZB");
-                            zoneIndex = int.Parse(ps.Substring(2, 3)) - 1;
-                            if (
-                            bool zoneBypass = Convert.ToBoolean(ps.Substring(5,1));
-                            Zones[zoneIndex].internalSetBypass(zoneBypass);
-                            break;
-
-                        case "ZV":
-                            SendDebug("Got ZV");
-                            zoneIndex = int.Parse(ps.Substring(2, 3))-1;
-                            double zoneVoltage = int.Parse(ps.Substring(5, 3));
-                            zoneVoltage /= 10;
-                            if (zoneIndex < Zones.Count)
-                                Zones[zoneIndex].internalSetZoneVoltage(zoneVoltage);
-                            break;
-
-                        case "ZP": //Zone Partition Request 06zp0050(CR-LF)
-                            SendDebug("Got ZP");
-                            char[] zpArray;
-                            zpArray = ps.Substring(2, 208).ToCharArray();
-                            for (int i = 0; i < zpArray.Length; i++)
-                                Zones[i].internalSetZoneArea(zpArray[i] - 48);
-                            break;
-
-                        case "AS": //Area Status
-                            SendDebug("Got AS");
-                            string armedStatusString = ps.Substring(2, 8);
-                            string armUpStateString = ps.Substring(10, 8);
-                            string alarmStateString = ps.Substring(18, 8);
-                            for (int i = 0; i < 8; i++)
-                            {
-                                Areas[i].internalSetAreaArmedStatus(armedStatusString.ToCharArray()[i-48]);
-                                Areas[i].internalSetAreaArmUpState(armUpStateString.ToCharArray()[i-48]);
-                                Areas[i].internalSetAreaAlarmState(alarmStateString.ToCharArray()[i-48]);
-                            }
-                            break;
-
-                        case "SD":
-                            int itemType = int.Parse(ps.Substring(2, 2));
-                            int itemIndex = int.Parse(ps.Substring(4, 3));
-                            int itemIndexZero = itemIndex - 1;
-                            string itemText = ps.Substring(7, 16); //may need to mask out high bit
-
-                            switch (itemType)
-                            {
-                                case 0:// = Zone Name
-                                    if (itemIndexZero < Zones.Count)
-                                        Zones[itemIndexZero].internalSetZoneName(itemText);
-                                    break;
-                                case 1://1 = Area Name
-                                    if (itemIndexZero < Areas.Count)
-                                        Areas[itemIndexZero].internalSetAreaName(itemText);
-                                    break;
-                                case 2:// = User Name
-                                    break;
-                                case 3:// = Keypad Name
-                                    break;
-                                case 4:// = Output Name
-                                    break;
-                                case 5:// = Task Name
-                                    break;
-                                case 6:// = Telephone Name
-                                    break;
-                                case 7:// = Light Name
-                                    break;
-                                case 8:// = Alarm Duration Name
-                                    break;
-                                case 9:// = Custom Settings
-                                    break;
-                                case 10:// = Counters Names
-                                    break;
-                                case 11:// = Thermostat Names
-                                    break;
-                                case 12:// = Function Key 1 Name
-                                    break;
-                                case 13:// = Function Key 2 Name
-                                    break;
-                                case 14:// = Function Key 3 Name
-                                    break;
-                                case 15:// = Function Key 4 Name
-                                    break;
-                                case 16:// = Function Key 5 Name
-                                    break;
-                                case 17:// = Function Key 6 Name
-                                    break;
-                                case 18:// = Audio Zone Name
-                                    break;
-                                case 19:// = Audio Source Name
-                                    break;
-                            }
-                            break;
+                        Areas[i + 1].internalSetAreaArmedStatus(hexToInt(armedStatusString.ToCharArray()[i]));
+                        Areas[i + 1].internalSetAreaArmUpState(hexToInt(armUpStateString.ToCharArray()[i]));
+                        Areas[i + 1].internalSetAreaAlarmState(hexToInt(alarmStateString.ToCharArray()[i]));
+                        Areas[i + 1].internalSetCountdownClock(alarmCountdownTime);
                     }
                 }
-                catch (Exception e)
+            }
+
+
+            //Descriptions (tested)
+            if (repType.Contains("SD"))
+            {
+                data = returnString.Substring(repType.IndexOf("SD"));
+                int itemType = int.Parse(data.Substring(2, 2));
+                int itemIndex = int.Parse(data.Substring(4, 3));
+                string itemText = data.Substring(7, 16); //may need to mask out high bit
+
+                switch (itemType)
                 {
-                    SendDebug(String.Format("Error is Elk: {0}:\r\n{1}", e.Message, returnString));
+                    case 0:// = Zone Name
+                        if (Zones.ContainsKey(itemIndex))
+                            Zones[itemIndex].internalSetZoneName(itemText);
+                        break;
+                    case 1://1 = Area Name
+                        if (Areas.ContainsKey(itemIndex))
+                            Areas[itemIndex].internalSetAreaName(itemText);
+                        break;
+                    case 2:// = User Name
+                        break;
+                    case 3:// = Keypad Name
+                        break;
+                    case 4:// = Output Name
+                        break;
+                    case 5:// = Task Name
+                        break;
+                    case 6:// = Telephone Name
+                        break;
+                    case 7:// = Light Name
+                        break;
+                    case 8:// = Alarm Duration Name
+                        break;
+                    case 9:// = Custom Settings
+                        break;
+                    case 10:// = Counters Names
+                        break;
+                    case 11:// = Thermostat Names
+                        break;
+                    case 12:// = Function Key 1 Name
+                        break;
+                    case 13:// = Function Key 2 Name
+                        break;
+                    case 14:// = Function Key 3 Name
+                        break;
+                    case 15:// = Function Key 4 Name
+                        break;
+                    case 16:// = Function Key 5 Name
+                        break;
+                    case 17:// = Function Key 6 Name
+                        break;
+                    case 18:// = Audio Zone Name
+                        break;
+                    case 19:// = Audio Source Name
+                        break;
                 }
             }
         }
@@ -379,6 +410,10 @@ namespace ElkAlarm
             if (debug)
                 CrestronConsole.PrintLine(String.Format("Elk Panel {0}: {1}", panelId, msg));
         }
-
+        public static int hexToInt(char hexChar)
+        {
+            hexChar = char.ToUpper(hexChar);
+            return (int)hexChar < (int)'A' ? ((int)hexChar - (int)'0') : 10 + ((int)hexChar - (int)'A');
+        }
     }
 }

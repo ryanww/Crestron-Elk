@@ -9,14 +9,18 @@ namespace ElkAlarm
     public class ElkArea
     {
         private int areaNumber;
+        private string areaName;
+
         private bool isRegistered;
 
         private ElkPanel myPanel;
 
-        private eAreaArmedStatus _armedStatus;
-        private eAreaArmUpState _armUpState;
-        private eAreaAlarmState _alarmState;
-        private string _name;
+        private eAreaArmedStatus armedStatus;
+        private eAreaArmUpState armUpState;
+        private eAreaAlarmState alarmState;
+        private int countdownClock;
+        private bool showTimer;
+        
 
         //Init -------------------------------------------------------
         public void Initialize(ElkPanel _panel, int _area)
@@ -34,10 +38,10 @@ namespace ElkAlarm
             myPanel.Enqueue(armstr);
         }
 
-        public eAreaArmedStatus getAreaArmedStatus { get { return _armedStatus; } }
+        public eAreaArmedStatus getAreaArmedStatus { get { return armedStatus; } }
         public string getAreaArmedStatusString()
         {
-            switch (_armedStatus)
+            switch (armedStatus)
             {
                 case eAreaArmedStatus.Disarmed:
                     return "Disarmed";
@@ -66,10 +70,10 @@ namespace ElkAlarm
             }
         }
 
-        public eAreaArmUpState getAreaArmUpState { get { return _armUpState; } }
+        public eAreaArmUpState getAreaArmUpState { get { return armUpState; } }
         public string getAreaArmUpStateString()
         {
-            switch (_armUpState)
+            switch (armUpState)
             {
                 case eAreaArmUpState.NotReadyToArm:
                     return "Not Ready To Arm";
@@ -98,10 +102,10 @@ namespace ElkAlarm
             }
         }
 
-        public eAreaAlarmState getAlarmStatus { get { return _alarmState; } }
+        public eAreaAlarmState getAlarmStatus { get { return alarmState; } }
         public string getAlarmStatusString()
         {
-            switch (_alarmState)
+            switch (alarmState)
             {
                 case eAreaAlarmState.NoAlarmActive:
                     return "No Alarm Active";
@@ -166,18 +170,19 @@ namespace ElkAlarm
             }
         }
 
-        public string getAreaDescription { get { return _name; } }
+        public string getAreaDescription { get { return areaName; } }
+
+        public int getAlarmCountdownClock { get { return countdownClock; } }
 
 
-
-        //Internal Functions -------------------------------------------------------
+        //Core internal -------------------------------------------------------
         public void internalSetAreaArmedStatus(int s)
         {
             eAreaArmedStatus te = (eAreaArmedStatus)Enum.Parse(typeof(eAreaArmedStatus), Convert.ToString(s), true);
-            if (te != _armedStatus)
+            if (te != armedStatus)
             {
-                _armedStatus = te;
-                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaArmedStatus = {1}", areaNumber, _armedStatus.ToString()));
+                armedStatus = te;
+                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaArmedStatus = {1}", areaNumber, armedStatus.ToString()));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ArmedStatusChange);
             }
         }
@@ -185,35 +190,68 @@ namespace ElkAlarm
         public void internalSetAreaArmUpState(int s)
         {
             eAreaArmUpState te = (eAreaArmUpState)Enum.Parse(typeof(eAreaArmUpState), Convert.ToString(s), true);
-            if (te != _armUpState)
+            if (te != armUpState)
             {
-                _armUpState = te;
-                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaArmUpState = {1}", areaNumber, _armUpState.ToString()));
+                armUpState = te;
+                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaArmUpState = {1}", areaNumber, armUpState.ToString()));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ArmUpStatChange);
+
+                checkTimer();
             }
         }
 
         public void internalSetAreaAlarmState(int s)
         {
             eAreaAlarmState te = (eAreaAlarmState)Enum.Parse(typeof(eAreaAlarmState), Convert.ToString(s), true);
-            if (te != _alarmState)
+            if (te != alarmState)
             {
-                _alarmState = te;
-                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaAlarmState = {1}", areaNumber, _alarmState.ToString()));
+                alarmState = te;
+                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaAlarmState = {1}", areaNumber, alarmState.ToString()));
                 OnElkAreaEvent(eElkAreaEventUpdateType.AlarmStateChange);
+
+                checkTimer();
             }
         }
 
         public void internalSetAreaName(string name)
         {
-            if (_name != name)
+            if (areaName != name)
             {
-                _name = name;
-                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaName = {1}", areaNumber, _name));
+                areaName = name;
+                myPanel.SendDebug(string.Format("Area {0} - internalSetAreaName = {1}", areaNumber, areaName));
                 OnElkAreaEvent(eElkAreaEventUpdateType.NameChange);
             }
         }
-        
+
+        public void internalSetCountdownClock(int c)
+        {
+            if (countdownClock != c)
+            {
+                countdownClock = c;
+                myPanel.SendDebug(string.Format("Area {0} - internalSetCountdownClock = {1}", areaNumber, countdownClock));
+                OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
+            }
+        }
+
+
+        //Internal Functions -------------------------------------------------------
+        public void checkTimer()
+        {
+            bool t;
+            if (alarmState == eAreaAlarmState.EntranceDelayActive || armUpState == eAreaArmUpState.ArmedWithExitTimer)
+                t = true;
+            else
+                t = false;
+
+            if (showTimer != t)
+            {
+                myPanel.SendDebug(string.Format("Area {0} - checkTimer = {1}", areaNumber, showTimer));
+                OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
+            }
+            //TODO: Implement Timer6
+        }
+
+
 
         //Events -------------------------------------------------------
         public event EventHandler<ElkAreaEventArgs> ElkAreaEvent;
@@ -297,6 +335,7 @@ namespace ElkAlarm
         ArmedStatusChange = 0,
         ArmUpStatChange = 1,
         AlarmStateChange = 2,
-        NameChange = 3
+        NameChange = 3,
+        ClockChange = 4
     }
 }

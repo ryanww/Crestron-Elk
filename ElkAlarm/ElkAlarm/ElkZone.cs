@@ -219,11 +219,11 @@ namespace ElkAlarm
                     break;
                 case 5:
                     tzs = eZoneStatus.Trouble;
-                    tzt = eZoneType.EOL;
+                    tzt = eZoneType.Open;
                     break;
                 case 6:
                     tzs = eZoneStatus.Trouble;
-                    tzt = eZoneType.Open;
+                    tzt = eZoneType.EOL;
                     break;
                 case 7:
                     tzs = eZoneStatus.Trouble;
@@ -240,6 +240,9 @@ namespace ElkAlarm
                 case 11:
                     tzs = eZoneStatus.Violated;
                     tzt = eZoneType.Short;
+                    break;
+                case 12:
+                    tzs = eZoneStatus.SoftBypassed;
                     break;
                 case 13:
                     tzs = eZoneStatus.Bypassed;
@@ -337,7 +340,8 @@ namespace ElkAlarm
         Normal = 0,
         Trouble = 1,
         Violated = 2,
-        Bypassed = 3
+        Bypassed = 3,
+        SoftBypassed = 4
     }
     public enum eZoneType
     {
