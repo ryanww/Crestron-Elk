@@ -49,21 +49,6 @@ namespace ElkAlarm
 
 
 
-
-    
-
-    //Password ---------------------------------------------------------
-    public class ElkPasswordEventArgs : EventArgs
-    {
-        public string Data_String;
-
-        public ElkPasswordEventArgs(string newString)
-        {
-            this.Data_String = newString;
-        }
-    }
-
-
     //Simpl
     public class SimplEvents
     {

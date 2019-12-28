@@ -14,13 +14,13 @@ namespace ElkAlarm
         private bool isRegistered;
 
         private ElkPanel myPanel;
+        public ElkPassword myPw;
 
         private eAreaArmedStatus armedStatus;
         private eAreaArmUpState armUpState;
         private eAreaAlarmState alarmState;
         private int countdownClock;
         private bool showTimer;
-        
 
         //Init -------------------------------------------------------
         public void Initialize(ElkPanel _panel, int _area)
@@ -29,15 +29,28 @@ namespace ElkAlarm
             myPanel = _panel;
         }
 
-
         //Public Functions -------------------------------------------------------
-        public void SetArmLevel(eAreaArmSet arm, string pass)
+        public void SetArmLevel(eAreaArmSet arm)
         {
-            string armstr = string.Format("a{0}{1}{2}00", arm, areaNumber, pass);
-            myPanel.SendDebug(string.Format("Area {0} - SetArmLevel = {1}", areaNumber, armstr));
-            myPanel.Enqueue(armstr);
+            if (myPw.IsValidCodeEntered())
+            {
+                string cmdStr = string.Format("a{0}{1}{2}00", arm, areaNumber, myPw.getPassword());
+                myPanel.SendDebug(string.Format("Area {0} - SetArmLevel = {1}", areaNumber, cmdStr));
+                myPanel.Enqueue(cmdStr);
+            }
         }
-
+        public void UnbypassAllZones()
+        {
+            string cmdStr = string.Format("zb000{0}{1}00", areaNumber, myPw.getPassword());
+            myPanel.SendDebug(string.Format("Area {0} - UnbypassAllZones = {1}", areaNumber, cmdStr));
+            myPanel.Enqueue(cmdStr);
+        }
+        public void BypassAllZones()
+        {
+            string cmdStr = string.Format("zb999{0}{1}00", areaNumber, myPw.getPassword());
+            myPanel.SendDebug(string.Format("Area {0} - BypassAllZones = {1}", areaNumber, cmdStr));
+            myPanel.Enqueue(cmdStr);
+        }
         public eAreaArmedStatus getAreaArmedStatus { get { return armedStatus; } }
         public string getAreaArmedStatusString()
         {
@@ -69,7 +82,6 @@ namespace ElkAlarm
                     break;
             }
         }
-
         public eAreaArmUpState getAreaArmUpState { get { return armUpState; } }
         public string getAreaArmUpStateString()
         {
@@ -101,7 +113,6 @@ namespace ElkAlarm
                     break;
             }
         }
-
         public eAreaAlarmState getAlarmStatus { get { return alarmState; } }
         public string getAlarmStatusString()
         {
@@ -169,14 +180,12 @@ namespace ElkAlarm
                     break;
             }
         }
-
         public string getAreaDescription { get { return areaName; } }
-
         public int getAlarmCountdownClock { get { return countdownClock; } }
 
 
         //Core internal -------------------------------------------------------
-        public void internalSetAreaArmedStatus(int s)
+        internal void internalSetAreaArmedStatus(int s)
         {
             eAreaArmedStatus te = (eAreaArmedStatus)Enum.Parse(typeof(eAreaArmedStatus), Convert.ToString(s), true);
             if (te != armedStatus)
@@ -185,9 +194,9 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Area {0} - internalSetAreaArmedStatus = {1}", areaNumber, armedStatus.ToString()));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ArmedStatusChange);
             }
+            checkRegistered();
         }
-
-        public void internalSetAreaArmUpState(int s)
+        internal void internalSetAreaArmUpState(int s)
         {
             eAreaArmUpState te = (eAreaArmUpState)Enum.Parse(typeof(eAreaArmUpState), Convert.ToString(s), true);
             if (te != armUpState)
@@ -198,9 +207,9 @@ namespace ElkAlarm
 
                 checkTimer();
             }
+            checkRegistered();
         }
-
-        public void internalSetAreaAlarmState(int s)
+        internal void internalSetAreaAlarmState(int s)
         {
             eAreaAlarmState te = (eAreaAlarmState)Enum.Parse(typeof(eAreaAlarmState), Convert.ToString(s), true);
             if (te != alarmState)
@@ -211,9 +220,9 @@ namespace ElkAlarm
 
                 checkTimer();
             }
+            checkRegistered();
         }
-
-        public void internalSetAreaName(string name)
+        internal void internalSetAreaName(string name)
         {
             if (areaName != name)
             {
@@ -221,9 +230,9 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Area {0} - internalSetAreaName = {1}", areaNumber, areaName));
                 OnElkAreaEvent(eElkAreaEventUpdateType.NameChange);
             }
+            checkRegistered();
         }
-
-        public void internalSetCountdownClock(int c)
+        internal void internalSetCountdownClock(int c)
         {
             if (countdownClock != c)
             {
@@ -231,11 +240,12 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Area {0} - internalSetCountdownClock = {1}", areaNumber, countdownClock));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
             }
+            checkRegistered();
         }
+        
 
-
-        //Internal Functions -------------------------------------------------------
-        public void checkTimer()
+        //Private Functions -------------------------------------------------------
+        private void checkTimer()
         {
             bool t;
             if (alarmState == eAreaAlarmState.EntranceDelayActive || armUpState == eAreaArmUpState.ArmedWithExitTimer)
@@ -248,9 +258,18 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Area {0} - checkTimer = {1}", areaNumber, showTimer));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
             }
-            //TODO: Implement Timer6
+            //TODO: Implement Timer
         }
-
+        private void checkRegistered()
+        {
+            if (!isRegistered)
+            {
+                string cmdStr = string.Format("sd01{0:000}00", areaNumber);
+                myPanel.SendDebug(string.Format("Area {0} - checkRegistered = {1}", areaNumber, cmdStr));
+                myPanel.Enqueue(cmdStr);
+                isRegistered = true;
+            }
+        }
 
 
         //Events -------------------------------------------------------

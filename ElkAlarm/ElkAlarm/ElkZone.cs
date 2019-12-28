@@ -8,18 +8,18 @@ namespace ElkAlarm
 {
     public class ElkZone
     {
-        private int zoneNumber;
-        private bool isRegistered;
+        private int zoneNumber = 0;
+        private bool isRegistered = false;
 
         private ElkPanel myPanel;
 
         private eZoneStatus zoneStatus;
         private eZoneType zoneType;
-        private string zoneName;
+        private string zoneName = "";
         private eZoneDefinition zoneDefinition;
-        private double zoneVoltage;
-        private bool zoneBypassed;
-        private int areaAssignment;
+        private double zoneVoltage = 0.0;
+        private bool zoneBypassed = false;
+        private int areaAssignment = 0;
 
         //Init -------------------------------------------------------
         public void Initialize(ElkPanel _panel, int _zone)
@@ -30,44 +30,23 @@ namespace ElkAlarm
 
 
         //Public Functions -------------------------------------------------------
-        public void BypassStateSet(bool state)
+        public void BypassRequest()
         {
-            switch (zoneStatus)
+            if (myPanel.Areas.ContainsKey(areaAssignment) && areaAssignment > 0)
             {
-                case eZoneStatus.Normal:
-                    {
-                        //If state == true then set to bypass
-                    }
-                    break;
-                case eZoneStatus.Bypassed:
-                    {
-                        //If state == false then set to normal
-                    }
-                    break;
+                string cmdStr = string.Format("zb{0:000}{1}{2}00", zoneNumber, areaAssignment, myPanel.Areas[areaAssignment].myPw.getPassword());
+                myPanel.SendDebug(string.Format("Zone {0} - BypassRequest = {1}", zoneNumber, cmdStr));
+                myPanel.Enqueue(cmdStr);
             }
+            else
+                ErrorLog.Error("ElkPanel {0} - Zone {1} doesnt have internal area assignment set.", myPanel.getPanelId, zoneNumber);
         }
-        public void BypassStateToggle()
+        public void ZoneTripTrigger()
         {
-            switch (zoneStatus)
-            {
-                case eZoneStatus.Normal:
-                    {
-                        BypassStateSet(true);
-                    }
-                    break;
-                case eZoneStatus.Bypassed:
-                    {
-                        BypassStateSet(false);
-                    }
-                    break;
-            }
+            string cmdStr = string.Format("zt{0:000}00", zoneNumber);
+            myPanel.SendDebug(string.Format("Zone {0} - ZoneTripTrigger = {1}", zoneNumber, cmdStr));
+            myPanel.Enqueue(cmdStr);
         }
-
-        public void ZoneTrigger()
-        {
-            myPanel.Enqueue(string.Format("zt{0}00", zoneNumber.ToString("000")));
-        }
-
         public eZoneStatus getZoneStatus { get { return zoneStatus; } }
         public eZoneType getZoneType { get { return zoneType; } }
         public string getZoneName { get { return zoneName; } }
@@ -193,8 +172,7 @@ namespace ElkAlarm
 
         //Internal Functions -------------------------------------------------------
 
-        //06zs004D(CR-LF)
-        public void internalSetZoneStatus(int s)
+        internal void internalSetZoneStatus(int s)
         {
             eZoneStatus tzs = zoneStatus;
             eZoneType tzt = zoneType;
@@ -269,9 +247,9 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Zone {0} - internalSetZoneStatus - zoneType = {1}", zoneNumber, zoneType.ToString()));
                 OnElkZoneEvent(eElkZoneEventUpdateType.TypeChange);
             }
+            checkRegistered();
         }
-
-        public void internalSetZoneName(string name)
+        internal void internalSetZoneName(string name)
         {
             if (zoneName != name)
             {
@@ -279,10 +257,9 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Zone {0} - internalSetZoneName = {1}", zoneNumber, zoneName));
                 OnElkZoneEvent(eElkZoneEventUpdateType.NameChange);
             }
+            checkRegistered();
         }
-
-        //06zd005C Zone Definition, request data
-        public void internalSetZoneDefinition(int defNum)
+        internal void internalSetZoneDefinition(int defNum)
         {
             eZoneDefinition te = (eZoneDefinition)Enum.Parse(typeof(eZoneDefinition), Convert.ToString(defNum), true);
             if (te != zoneDefinition)
@@ -291,10 +268,9 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Zone {0} - internalSetZoneDefinition = {1}", zoneNumber, zoneDefinition.ToString()));
                 OnElkZoneEvent(eElkZoneEventUpdateType.DefinitionChange);
             }
+            checkRegistered();
         }
-
-        //09zv12300B1 Zone 123 analog voltage request data
-        public void internalSetZoneVoltage(double volt)
+        internal void internalSetZoneVoltage(double volt)
         {
             if (zoneVoltage != volt)
             {
@@ -302,9 +278,9 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Zone {0} - internalSetZoneVoltage = {1}", zoneNumber, zoneVoltage));
                 OnElkZoneEvent(eElkZoneEventUpdateType.VoltageChange);
             }
+            checkRegistered();
         }
-
-        public void internalSetBypass(bool state)
+        internal void internalSetBypass(bool state)
         {
             if (zoneBypassed != state)
             {
@@ -312,15 +288,28 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Zone {0} - internalSetBypass = {1}", zoneNumber, zoneBypassed));
                 OnElkZoneEvent(eElkZoneEventUpdateType.BypassChange);
             }
+            checkRegistered();
         }
-
-        public void internalSetZoneArea(int area)
+        internal void internalSetZoneArea(int area)
         {
             if (areaAssignment != area)
             {
                 areaAssignment = area;
                 myPanel.SendDebug(string.Format("Zone {0} - internalSetZoneArea = {1}", zoneNumber, areaAssignment));
                 OnElkZoneEvent(eElkZoneEventUpdateType.AreaAssignmentChange);
+            }
+            checkRegistered();
+        }
+
+        //Private Functions -------------------------------------------------------
+        private void checkRegistered()
+        {
+            if (!isRegistered)
+            {
+                string cmdStr = string.Format("sd00{0:000}00",zoneNumber);
+                myPanel.SendDebug(string.Format("Zone {0} - checkRegistered = {1}", zoneNumber, cmdStr));
+                myPanel.Enqueue(cmdStr);
+                isRegistered = true;
             }
         }
 

@@ -27,10 +27,9 @@ namespace ElkAlarm
         public bool IsConnected { get { return this.isConnected; } }
         private bool initRun = false;
 
-        private string pwCode;
-
-        internal static Dictionary<int, ElkArea> Areas = new Dictionary<int, ElkArea>();
-        internal static Dictionary<int, ElkZone> Zones = new Dictionary<int, ElkZone>();
+        internal Dictionary<int, ElkArea> Areas = new Dictionary<int, ElkArea>();
+        internal Dictionary<int, ElkZone> Zones = new Dictionary<int, ElkZone>();
+        internal Dictionary<int, ElkOutput> Outputs = new Dictionary<int, ElkOutput>();
 
         //Initialize
         public bool Initialize(int _panelId, string _host, ushort _port)
@@ -60,6 +59,16 @@ namespace ElkAlarm
                     Zones.Add(i, z);
                 }
             }
+            for (int i = 1; i <= 208; i++)
+            {
+                if (!Outputs.ContainsKey(i))
+                {
+                    ElkOutput o = new ElkOutput();
+                    o.Initialize(this, i);
+                    Outputs.Add(i, o);
+                }
+            }
+
             commandQueue = new CrestronQueue<string>();
             responseQueue = new CrestronQueue<string>();
 
@@ -95,7 +104,11 @@ namespace ElkAlarm
 
         public void InitializePanelParameters()
         {
-            this.Enqueue("zs00");//Zone status request
+            this.Enqueue("as00"); //Arming status request
+            this.Enqueue("zs00"); //Zone status request
+            this.Enqueue("zp00"); //Zone partition request
+            this.Enqueue("zd00"); //Zone definition request
+            this.Enqueue("cs00"); //Output status request
             this.isInitialized = true;
         }
 
@@ -205,21 +218,16 @@ namespace ElkAlarm
             return s;
         }
 
-
-
-
-
         //Parsing
         private void ParseInternalResponse(string returnString)
         {
             if (returnString.Length <=2)
                 return;
 
-
             string repType = returnString.Substring(0, 6);
             string data = "";
             CrestronConsole.PrintLine("parse {0}", repType);
-            int zoneIndex = 0;
+            int index = 0;
             
             //All Zone Status (tested)
             if (repType.Contains("ZS"))
@@ -238,9 +246,9 @@ namespace ElkAlarm
             {
                 data = returnString.Substring(repType.IndexOf("ZC"));
                 SendDebug("Got ZC");
-                zoneIndex = int.Parse(data.Substring(2, 3));
-                if (Zones.ContainsKey(zoneIndex))
-                    Zones[zoneIndex].internalSetZoneStatus(hexToInt(data.ToCharArray()[5]));
+                index = int.Parse(data.Substring(2, 3));
+                if (Zones.ContainsKey(index))
+                    Zones[index].internalSetZoneStatus(hexToInt(data.ToCharArray()[5]));
             }
 
 
@@ -261,14 +269,12 @@ namespace ElkAlarm
             {
                 data = returnString.Substring(repType.IndexOf("ZB"));
                 SendDebug("Got ZB");
-                zoneIndex = int.Parse(data.Substring(2, 3));
-                if (Zones.ContainsKey(zoneIndex))
-                {
+                index = int.Parse(data.Substring(2, 3));
+                if (Zones.ContainsKey(index))
                     if (data.ToCharArray()[5] == '1')
-                        Zones[zoneIndex].internalSetBypass(true);
+                        Zones[index].internalSetBypass(true);
                     else
-                        Zones[zoneIndex].internalSetBypass(false);
-                }
+                        Zones[index].internalSetBypass(false);
             }
 
             //Zone Voltage (tested)
@@ -276,11 +282,23 @@ namespace ElkAlarm
             {
                 data = returnString.Substring(repType.IndexOf("ZV"));
                 SendDebug("Got ZV");
-                zoneIndex = int.Parse(data.Substring(2, 3));
+                index = int.Parse(data.Substring(2, 3));
                 double zoneVoltage = int.Parse(data.Substring(5, 3));
                 zoneVoltage /= 10;
-                if (Zones.ContainsKey(zoneIndex))
-                    Zones[zoneIndex].internalSetZoneVoltage(zoneVoltage);
+                if (Zones.ContainsKey(index))
+                    Zones[index].internalSetZoneVoltage(zoneVoltage);
+            }
+
+            //Alarm By Zone Report 
+            if (repType.Contains("AZ"))
+            {
+                data = returnString.Substring(repType.IndexOf("AZ"));
+                SendDebug("Got AZ");
+                char[] zdArray;
+                zdArray = data.Substring(2, 208).ToCharArray();
+                for (int i = 0; i < zdArray.Length; i++)
+                    if (Zones.ContainsKey(i + 1))
+                        Zones[i + 1].internalSetZoneDefinition((int)zdArray[i] - 48);
             }
 
             //Zone Partition (tested)
@@ -305,7 +323,6 @@ namespace ElkAlarm
                 string alarmStateString = data.Substring(18, 8);
                 int alarmCountdownTime = int.Parse(data.Substring(26, 2));
                 for (int i = 0; i < 8; i++)
-                {
                     if (Areas.ContainsKey(i + 1))
                     {
                         Areas[i + 1].internalSetAreaArmedStatus(hexToInt(armedStatusString.ToCharArray()[i]));
@@ -313,7 +330,34 @@ namespace ElkAlarm
                         Areas[i + 1].internalSetAreaAlarmState(hexToInt(alarmStateString.ToCharArray()[i]));
                         Areas[i + 1].internalSetCountdownClock(alarmCountdownTime);
                     }
-                }
+            }
+
+            //Output Status
+            if (repType.Contains("CS"))
+            {
+                data = returnString.Substring(repType.IndexOf("CS"));
+                SendDebug("Got CS");
+                char[] csArray;
+                csArray = data.Substring(2, 208).ToCharArray();
+                for (int i = 0; i < csArray.Length; i++)
+                    if (Outputs.ContainsKey(i + 1))
+                        if (csArray[i] == '1')
+                            Outputs[i + 1].internalOutputStateSet(true);
+                        else
+                            Outputs[i + 1].internalOutputStateSet(false);
+            }
+
+            //Output Status
+            if (repType.Contains("CC"))
+            {
+                data = returnString.Substring(repType.IndexOf("CC"));
+                SendDebug("Got CC");
+                index = int.Parse(data.Substring(2, 3));
+                if (Outputs.ContainsKey(index))
+                    if (data.ToCharArray()[5] == '1')
+                        Outputs[index].internalOutputStateSet(true);
+                    else
+                        Outputs[index].internalOutputStateSet(false); ;
             }
 
 
@@ -340,6 +384,8 @@ namespace ElkAlarm
                     case 3:// = Keypad Name
                         break;
                     case 4:// = Output Name
+                        if (Outputs.ContainsKey(itemIndex))
+                            Outputs[itemIndex].internalSetOutputName(itemText);
                         break;
                     case 5:// = Task Name
                         break;
@@ -397,6 +443,28 @@ namespace ElkAlarm
         }
 
 
+        //Interface
+        public ElkArea GetAreaObject(int _area)
+        {
+            if (Areas.ContainsKey(_area))
+                return Areas[_area];
+            else
+                return null;
+        }
+        public ElkZone GetZoneObject(int _zone)
+        {
+            if (Zones.ContainsKey(_zone))
+                return Zones[_zone];
+            else
+                return null;
+        }
+        public ElkOutput GetOutputObject(int _output)
+        {
+            if (Outputs.ContainsKey(_output))
+                return Outputs[_output];
+            else
+                return null;
+        }
 
 
         //Utility
