@@ -14,7 +14,7 @@ namespace ElkAlarm
         private bool isRegistered;
 
         private ElkPanel myPanel;
-        public ElkPassword myPw;
+        public ElkPassword myPw = new ElkPassword();
 
         private eAreaArmedStatus armedStatus;
         private eAreaArmUpState armUpState;
@@ -34,8 +34,14 @@ namespace ElkAlarm
         {
             if (myPw.IsValidCodeEntered())
             {
-                string cmdStr = string.Format("a{0}{1}{2}00", arm, areaNumber, myPw.getPassword());
-                myPanel.SendDebug(string.Format("Area {0} - SetArmLevel = {1}", areaNumber, cmdStr));
+                char al = '0';
+                al += (char)(int)arm;
+
+                string pw = myPw.getPassword();
+                
+
+                string cmdStr = string.Format("a{0}{1}{2}00", al, areaNumber, pw);
+                myPanel.SendDebug(string.Format("Area {0} - SetArmLevel = {1} ({2})", areaNumber, arm, cmdStr));
                 myPanel.Enqueue(cmdStr);
             }
         }

@@ -43,7 +43,7 @@ namespace ElkAlarm
             if (!IsValidCodeEntered())
                 return "";
 
-            for (int i = code.Count; i <= 6; i++)
+            for (int i = code.Count; i < 6; i++)
                 code.Insert(0, 0);
 
             string p = "";

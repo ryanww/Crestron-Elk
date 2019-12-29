@@ -79,9 +79,7 @@ namespace ElkAlarm
         public ushort GetZoneAssignment(ushort _zone)
         {
             if (myPanel.Zones.ContainsKey(_zone))
-            {
-                return (ushort)myPanel.Zones[_zone].getZoneAreaAssignment == myArea.GetAreaNumber ? '1' : '0';
-            }
+                return (ushort)myPanel.Zones[_zone].getZoneAreaAssignment == myArea.GetAreaNumber ? (ushort)1 : (ushort)0;
             else
                 return (ushort)0;
         }
@@ -115,15 +113,7 @@ namespace ElkAlarm
                     break;
                 case eElkAreaEventUpdateType.ZoneAssignmentChange:
                     if (newZoneAssignmentChange != null)
-                    {
-                        //ushort[] za = new ushort[myPanel.Zones.Count()];
-                        //for (int i = 1; i < myPanel.Zones.Count(); i++)
-                        //{
-                        //    if (myPanel.Zones.ContainsKey(i))
-                        //        za[i - 1] = myPanel.Zones[i].getZoneAreaAssignment == myArea.GetAreaNumber ? (ushort)1 : (ushort)0;
-                        //}
                         newZoneAssignmentChange();
-                    }
                     break;
             }
         }
