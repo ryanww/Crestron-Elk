@@ -8,54 +8,130 @@ namespace ElkAlarm
 {
     public class ElkAreaSimpl
     {
-        public delegate void ArmStatusChange(ushort armStatus);
-        public ArmStatusChange newArmStatusChange { get; set; }
-        public delegate void StateStatusChange(ushort statusState);
-        public StateStatusChange newStateStatusChange { get; set; }
-        public delegate void AlarmStatusChange(ushort statusState);
-        public AlarmStatusChange newAlarmStatusChange { get; set; }
-        public delegate void DescriptionChange(SimplSharpString description);
-        public DescriptionChange newDescriptionChange { get; set; }
 
-        private ElkArea area;
+        public delegate void ArmedStatusChange(ushort _armedStatus);
+        public ArmedStatusChange newArmedStatusChange { get; set; }
+        public delegate void ArmUpStateChange(ushort _armUpState);
+        public ArmUpStateChange newArmUpStateChange { get; set; }
+        public delegate void AlarmStateChange(ushort _alarmState);
+        public AlarmStateChange newAlarmStatusChange { get; set; }
+        public delegate void NameChange(SimplSharpString _name);
+        public NameChange newNameChange { get; set; }
+        public delegate void ClockChange(SimplSharpString _clock);
+        public ClockChange newClockChange { get; set; }
+        public delegate void PwChange(SimplSharpString _pw);
+        public PwChange newPwChange { get; set; }
+        public delegate void ZoneAssignmentChange();
+        public ZoneAssignmentChange newZoneAssignmentChange { get; set; }
 
-        public void Initialize(ushort areaNum)
+        private ElkPanel myPanel;
+        private ElkArea myArea;
+
+        //Init -------------------------------------------------------
+        public void Initialize(ushort _panel, ushort _areaNum)
         {
-            area = new ElkArea(areaNum);
-            area.ElkAreaEvent += new EventHandler<ElkAreaEventArgs>(area_ElkAreaEvent);
-        }
+            myPanel = ElkCore.AddOrGetCoreObject(_panel);
+            if (myPanel == null)
+                return;
 
-        public void SetArmState(ushort armState)
-        {
-            eAreaArmSet _as = (eAreaArmSet)Enum.Parse(typeof(eAreaArmSet), Convert.ToString(armState), true);
-            area.SetArm(_as);
-        }
-
-
-        private void area_ElkAreaEvent(object sender, ElkAreaEventArgs e)
-        {
-            switch (e.EventID)
+            if (myPanel.Areas.ContainsKey((int)_areaNum))
             {
-                case eElkAreaEventID.ArmStatusChange:
-                    if (newArmStatusChange != null)
-                        newArmStatusChange((ushort)area.getArmStatus);
-                    break;
-                case eElkAreaEventID.StateStatusChange:
-                    if (newStateStatusChange != null)
-                        newStateStatusChange((ushort)area.getStateStatus);
-                    break;
-                case eElkAreaEventID.AlarmStatusChange:
-                    if (newAlarmStatusChange != null)
-                        newAlarmStatusChange((ushort)area.getAlarmStatus);
-                    break;
-                case eElkAreaEventID.DescriptionChange:
-                    if (newDescriptionChange != null)
-                        newDescriptionChange((SimplSharpString)area.getAreaDescription);
-                    break;
-               
+                myArea = myPanel.Areas[(int)_areaNum];
+                myArea.ElkAreaEvent += new EventHandler<ElkAreaEventArgs>(myArea_ElkAreaEvent);
+                myArea.myPw.ElkPasswordEvent += new EventHandler<ElkPasswordEventArgs>(myPw_ElkPasswordEvent);
             }
         }
 
+        //Public Functions -------------------------------------------------------
+        public void SetArmState(ushort _armState)
+        {
+            eAreaArmSet tas = (eAreaArmSet)Enum.Parse(typeof(eAreaArmSet), Convert.ToString(_armState), true);
+            myArea.SetArmLevel(tas);
+        }
+        public void KeypadNumber(ushort _b)
+        {
+            myArea.myPw.AddKeyToPassword((int)_b);
+        }
+        public void KeypadBackspace()
+        {
+            myArea.myPw.Backspace();
+        }
+        public void KeypadClear()
+        {
+            myArea.myPw.ClearPassword();
+        }
+        public ushort GetAlarmCountdownClockShow()
+        {
+            return myArea.GetAlarmCountdownClockShow ? (ushort)1 : (ushort)0;
+        }
+        public SimplSharpString GetAreaArmedStatusString()
+        {
+            return (SimplSharpString)myArea.GetAreaArmedStatusString;
+        }
+        public SimplSharpString GetAreaArmUpStateString()
+        {
+            return (SimplSharpString)myArea.GetAreaArmUpStateString;
+        }
+        public SimplSharpString GetAlarmStatusString()
+        {
+            return (SimplSharpString)myArea.GetAlarmStatusString;
+        }
+        public ushort GetZoneAssignment(ushort _zone)
+        {
+            if (myPanel.Zones.ContainsKey(_zone))
+            {
+                return (ushort)myPanel.Zones[_zone].getZoneAreaAssignment == myArea.GetAreaNumber ? '1' : '0';
+            }
+            else
+                return (ushort)0;
+        }
+
+
+
+        //Events -------------------------------------------------------
+        void myArea_ElkAreaEvent(object sender, ElkAreaEventArgs e)
+        {
+            switch (e.EventUpdateType)
+            {
+                case eElkAreaEventUpdateType.ArmedStatusChange:
+                    if (newArmedStatusChange != null)
+                        newArmedStatusChange((ushort)myArea.GetAreaArmedStatus);
+                    break;
+                case eElkAreaEventUpdateType.ArmUpStatChange:
+                    if (newArmUpStateChange != null)
+                        newArmUpStateChange((ushort)myArea.GetAreaArmUpState);
+                    break;
+                case eElkAreaEventUpdateType.AlarmStateChange:
+                    if (newAlarmStatusChange != null)
+                        newAlarmStatusChange((ushort)myArea.GetAlarmStatus);
+                    break;
+                case eElkAreaEventUpdateType.NameChange:
+                    if (newNameChange != null)
+                        newNameChange((SimplSharpString)myArea.GetAreaName);
+                    break;
+                case eElkAreaEventUpdateType.ClockChange:
+                    if (newClockChange != null)
+                        newClockChange((SimplSharpString)myArea.GetAlarmCountdownClockString);
+                    break;
+                case eElkAreaEventUpdateType.ZoneAssignmentChange:
+                    if (newZoneAssignmentChange != null)
+                    {
+                        //ushort[] za = new ushort[myPanel.Zones.Count()];
+                        //for (int i = 1; i < myPanel.Zones.Count(); i++)
+                        //{
+                        //    if (myPanel.Zones.ContainsKey(i))
+                        //        za[i - 1] = myPanel.Zones[i].getZoneAreaAssignment == myArea.GetAreaNumber ? (ushort)1 : (ushort)0;
+                        //}
+                        newZoneAssignmentChange();
+                    }
+                    break;
+            }
+        }
+        void myPw_ElkPasswordEvent(object sender, ElkPasswordEventArgs e)
+        {
+            if (newPwChange != null)
+                newPwChange((SimplSharpString)e.Password);
+        }
 
     }
 }

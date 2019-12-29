@@ -51,138 +51,166 @@ namespace ElkAlarm
             myPanel.SendDebug(string.Format("Area {0} - BypassAllZones = {1}", areaNumber, cmdStr));
             myPanel.Enqueue(cmdStr);
         }
-        public eAreaArmedStatus getAreaArmedStatus { get { return armedStatus; } }
-        public string getAreaArmedStatusString()
+        public eAreaArmedStatus GetAreaArmedStatus { get { return armedStatus; } }
+        public string GetAreaArmedStatusString
         {
-            switch (armedStatus)
+            get
             {
-                case eAreaArmedStatus.Disarmed:
-                    return "Disarmed";
-                    break;
-                case eAreaArmedStatus.ArmedAway:
-                    return "Armed Away";
-                    break;
-                case eAreaArmedStatus.ArmedStay:
-                    return "Armed Stay";
-                    break;
-                case eAreaArmedStatus.ArmedStayInstant:
-                    return "Armed Stay Instant";
-                    break;
-                case eAreaArmedStatus.ArmedNight:
-                    return "Armed Night";
-                    break;
-                case eAreaArmedStatus.ArmedNightInstant:
-                    return "Armed Night Instant";
-                    break;
-                case eAreaArmedStatus.ArmedVacation:
-                    return "Armed Vacation";
-                    break;
-                default:
-                    return "";
-                    break;
+                string ret = "";
+                switch (armedStatus)
+                {
+                    case eAreaArmedStatus.Disarmed:
+                        ret = "Disarmed";
+                        break;
+                    case eAreaArmedStatus.ArmedAway:
+                        ret = "Armed Away";
+                        break;
+                    case eAreaArmedStatus.ArmedStay:
+                        ret = "Armed Stay";
+                        break;
+                    case eAreaArmedStatus.ArmedStayInstant:
+                        ret = "Armed Stay Instant";
+                        break;
+                    case eAreaArmedStatus.ArmedNight:
+                        ret = "Armed Night";
+                        break;
+                    case eAreaArmedStatus.ArmedNightInstant:
+                        ret = "Armed Night Instant";
+                        break;
+                    case eAreaArmedStatus.ArmedVacation:
+                        ret = "Armed Vacation";
+                        break;
+                    default:
+                        ret = "";
+                        break;
+                }
+                return ret;
             }
         }
-        public eAreaArmUpState getAreaArmUpState { get { return armUpState; } }
-        public string getAreaArmUpStateString()
+        public eAreaArmUpState GetAreaArmUpState { get { return armUpState; } }
+        public string GetAreaArmUpStateString
         {
-            switch (armUpState)
+            get
             {
-                case eAreaArmUpState.NotReadyToArm:
-                    return "Not Ready To Arm";
-                    break;
-                case eAreaArmUpState.ReadyToArm:
-                    return "Ready To Arm";
-                    break;
-                case eAreaArmUpState.ReadyToArmIfForced:
-                    return "Ready To Arm If Forced";
-                    break;
-                case eAreaArmUpState.ArmedWithExitTimer:
-                    return "Armed With Exit Timer";
-                    break;
-                case eAreaArmUpState.Armed:
-                    return "Armed";
-                    break;
-                case eAreaArmUpState.ForceArmed:
-                    return "Force Armed";
-                    break;
-                case eAreaArmUpState.ArmedWithBypass:
-                    return "Armed With Bypass";
-                    break;
-                default:
-                    return "";
-                    break;
+                string ret = "";
+                switch (armUpState)
+                {
+                    case eAreaArmUpState.NotReadyToArm:
+                        ret = "Not Ready To Arm";
+                        break;
+                    case eAreaArmUpState.ReadyToArm:
+                        ret = "Ready To Arm";
+                        break;
+                    case eAreaArmUpState.ReadyToArmIfForced:
+                        ret = "Ready To Arm If Forced";
+                        break;
+                    case eAreaArmUpState.ArmedWithExitTimer:
+                        ret = "Armed With Exit Timer";
+                        break;
+                    case eAreaArmUpState.Armed:
+                        ret = "Armed";
+                        break;
+                    case eAreaArmUpState.ForceArmed:
+                        ret = "Force Armed";
+                        break;
+                    case eAreaArmUpState.ArmedWithBypass:
+                        ret = "Armed With Bypass";
+                        break;
+                    default:
+                        ret = "";
+                        break;
+                }
+                return ret;
             }
         }
-        public eAreaAlarmState getAlarmStatus { get { return alarmState; } }
-        public string getAlarmStatusString()
+        public eAreaAlarmState GetAlarmStatus { get { return alarmState; } }
+        public string GetAlarmStatusString
         {
-            switch (alarmState)
+            get
             {
-                case eAreaAlarmState.NoAlarmActive:
-                    return "No Alarm Active";
-                    break;
-                case eAreaAlarmState.EntranceDelayActive:
-                    return "Entrance Delay Active";
-                    break;
-                case eAreaAlarmState.AlarmAbortDelayActive:
-                    return "Alarm Abort Delay Active";
-                    break;
-                case eAreaAlarmState.FireAlarm:
-                    return "Fire Alarm";
-                    break;
-                case eAreaAlarmState.MedicalAlarm:
-                    return "Medical Alarm";
-                    break;
-                case eAreaAlarmState.PoliceAlarm:
-                    return "Police Alarm";
-                    break;
-                case eAreaAlarmState.BurglarAlarm:
-                    return "Burglar Alarm";
-                    break;
-                case eAreaAlarmState.Aux1Alarm:
-                    return "Aux 1 Alarm";
-                    break;
-                case eAreaAlarmState.Aux2Alarm:
-                    return "Aux 2 Alarm";
-                    break;
-                case eAreaAlarmState.Aux3Alarm:
-                    return "Aux 3 Alarm";
-                    break;
-                case eAreaAlarmState.Aux4Alarm:
-                    return "Aux 4 Alarm";
-                    break;
-                case eAreaAlarmState.CarbonMonoxideAlarm:
-                    return "Carbon Monoxide Alarm";
-                    break;
-               case eAreaAlarmState. EmergencyAlarm:
-                    return "Emergency Alarm";
-                    break;
-                case eAreaAlarmState.FreezeAlarm:
-                    return "Freeze Alarm";
-                    break;
-                case eAreaAlarmState.GasAlarm:
-                    return "Gas Alarm";
-                    break;
-                case eAreaAlarmState.HeatAlarm:
-                    return "Heat Alarm";
-                    break;
-                case eAreaAlarmState.WaterAlarm:
-                    return "Water Alarm";
-                    break;
-                case eAreaAlarmState.FireSupervisory:
-                    return "Fire Supervisory";
-                    break;
-                case eAreaAlarmState.VerifyFire:
-                    return "Verify Fire";
-                    break;
-                default:
-                    return "";
-                    break;
+                string ret = "";
+                switch (alarmState)
+                {
+                    case eAreaAlarmState.NoAlarmActive:
+                        ret = "No Alarm Active";
+                        break;
+                    case eAreaAlarmState.EntranceDelayActive:
+                        ret = "Entrance Delay Active";
+                        break;
+                    case eAreaAlarmState.AlarmAbortDelayActive:
+                        ret = "Alarm Abort Delay Active";
+                        break;
+                    case eAreaAlarmState.FireAlarm:
+                        ret = "Fire Alarm";
+                        break;
+                    case eAreaAlarmState.MedicalAlarm:
+                        ret = "Medical Alarm";
+                        break;
+                    case eAreaAlarmState.PoliceAlarm:
+                        ret = "Police Alarm";
+                        break;
+                    case eAreaAlarmState.BurglarAlarm:
+                        ret = "Burglar Alarm";
+                        break;
+                    case eAreaAlarmState.Aux1Alarm:
+                        ret = "Aux 1 Alarm";
+                        break;
+                    case eAreaAlarmState.Aux2Alarm:
+                        ret = "Aux 2 Alarm";
+                        break;
+                    case eAreaAlarmState.Aux3Alarm:
+                        ret = "Aux 3 Alarm";
+                        break;
+                    case eAreaAlarmState.Aux4Alarm:
+                        ret = "Aux 4 Alarm";
+                        break;
+                    case eAreaAlarmState.CarbonMonoxideAlarm:
+                        ret = "Carbon Monoxide Alarm";
+                        break;
+                   case eAreaAlarmState. EmergencyAlarm:
+                        ret = "Emergency Alarm";
+                        break;
+                    case eAreaAlarmState.FreezeAlarm:
+                        ret = "Freeze Alarm";
+                        break;
+                    case eAreaAlarmState.GasAlarm:
+                        ret = "Gas Alarm";
+                        break;
+                    case eAreaAlarmState.HeatAlarm:
+                        ret = "Heat Alarm";
+                        break;
+                    case eAreaAlarmState.WaterAlarm:
+                        ret = "Water Alarm";
+                        break;
+                    case eAreaAlarmState.FireSupervisory:
+                        ret = "Fire Supervisory";
+                        break;
+                    case eAreaAlarmState.VerifyFire:
+                        ret = "Verify Fire";
+                        break;
+                    default:
+                        ret = "";
+                        break;
+                }
+                return ret;
             }
         }
-        public string getAreaDescription { get { return areaName; } }
-        public int getAlarmCountdownClock { get { return countdownClock; } }
-
+        public string GetAreaName { get { return areaName; } }
+        public string GetAlarmCountdownClockString
+        {
+            get {
+                string c = "";
+                //Exit
+                if (armUpState == eAreaArmUpState.ArmedWithExitTimer)
+                    c = string.Format("Exit Timer: {0}", countdownClock);
+                //Enter
+                if (alarmState == eAreaAlarmState.EntranceDelayActive)
+                    c = string.Format("Enter Timer: {0}", countdownClock);
+                return c;
+            }
+        }
+        public bool GetAlarmCountdownClockShow { get { return showTimer; } }
+        public int GetAreaNumber { get { return areaNumber; } }
 
         //Core internal -------------------------------------------------------
         internal void internalSetAreaArmedStatus(int s)
@@ -241,6 +269,10 @@ namespace ElkAlarm
                 OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
             }
             checkRegistered();
+        }
+        internal void internalZoneAssignmentChanged()
+        {
+            OnElkAreaEvent(eElkAreaEventUpdateType.ZoneAssignmentChange);
         }
         
 
@@ -355,6 +387,7 @@ namespace ElkAlarm
         ArmUpStatChange = 1,
         AlarmStateChange = 2,
         NameChange = 3,
-        ClockChange = 4
+        ClockChange = 4,
+        ZoneAssignmentChange = 5
     }
 }

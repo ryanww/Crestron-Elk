@@ -21,22 +21,14 @@ namespace ElkAlarm
 
         public void Initialize(ushort _panelId, SimplSharpString _host, ushort _port)
         {
-            myPanel = new ElkPanel();
-            bool added = ElkCore.AddPanel(_panelId, myPanel);
-            if (added)
+            myPanel = ElkCore.AddOrGetCoreObject(_panelId);
+            if (myPanel.getPanelIp.Length == 0)
             {
                 myPanel.SetDebug(debug);
-                if (myPanel.Initialize((int)_panelId, _host.ToString(), _port))
-                {
-                    
-                    myPanel.RegisterSimplClient(Convert.ToString(_panelId));
-                    myPanel.SimplClients[Convert.ToString(_panelId)].OnNewEvent += new EventHandler<SimplEventArgs>(ElkPanel_SimplEvent);
-                    this.isRegistered = true;
-                }
-                else
-                {
-                    ErrorLog.Error("Elk Panel Simpl - failed to initialize panel");
-                }
+                myPanel.InitialzeConnection(_host.ToString(), _port);
+                myPanel.RegisterSimplClient(Convert.ToString(_panelId));
+                myPanel.SimplClients[Convert.ToString(_panelId)].OnNewEvent += new EventHandler<SimplEventArgs>(ElkPanel_SimplEvent);
+                this.isRegistered = true;
             }
             else
             {

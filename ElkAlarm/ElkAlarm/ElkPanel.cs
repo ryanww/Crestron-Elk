@@ -22,7 +22,7 @@ namespace ElkAlarm
         private string panelIp = "";
         public string getPanelIp { get { return this.panelIp; } }
         private int panelPort = 0;
-        private bool isInitialized;
+        private bool isInitialized = false;
         private bool isConnected = false;
         public bool IsConnected { get { return this.isConnected; } }
         private bool initRun = false;
@@ -32,14 +32,14 @@ namespace ElkAlarm
         internal Dictionary<int, ElkOutput> Outputs = new Dictionary<int, ElkOutput>();
 
         //Initialize
-        public bool Initialize(int _panelId, string _host, ushort _port)
+        public void Initialize(int _panelId)
         {
             if (this.initRun)
-                return false;
+                return;
 
             panelId = _panelId;
 
-            this.SendDebug(string.Format("Added Panel {0} @ {1}:{2} & initialize", _panelId, _host, _port));
+            this.SendDebug(string.Format("Added and initialized Panel ", _panelId));
 
             for (int i = 1; i <= 8; i++)
             {
@@ -73,27 +73,25 @@ namespace ElkAlarm
             responseQueue = new CrestronQueue<string>();
 
             this.panelId = _panelId;
+
+            this.initRun = true;
+        }
+
+        public void InitialzeConnection(string _host, ushort _port)
+        {   
             this.panelIp = _host;
             this.panelPort = _port;
             
-            
-            if (this.commandQueueTimer == null)
-                this.commandQueueTimer = new CTimer(CommandQueueDequeue, null, 0, 50);
-
-            if (this.responseQueueTimer == null)
-                this.responseQueueTimer = new CTimer(ResponseQueueDequeue, null, 0, 50);
-
-            if (this.isConnected == false)
-                this.InitialzeConnection();
-            this.initRun = true;
-
-            return true;
-        }
-
-        public void InitialzeConnection()
-        {
             if (this.panelIp.Length > 0)
             {
+                this.SendDebug(string.Format("Initializing Panel {0} connection @ {1}:{2} & initialize", panelId, panelIp, panelPort));
+
+                if (this.commandQueueTimer == null)
+                    this.commandQueueTimer = new CTimer(CommandQueueDequeue, null, 0, 50);
+
+                if (this.responseQueueTimer == null)
+                    this.responseQueueTimer = new CTimer(ResponseQueueDequeue, null, 0, 50);
+
                 this.client = new TCPClientDevice();
                 this.client.ID = 1;
                 this.client.ConnectionStatus += new StatusEventHandler(client_ConnectionStatus);
@@ -173,6 +171,7 @@ namespace ElkAlarm
             }
             catch (Exception e)
             {
+                ErrorLog.Error("ElkPanel {0} - Parse error: {1}", panelId, e.Message);
             }
         }
         void client_ResponseString(string response, int id)
@@ -289,7 +288,7 @@ namespace ElkAlarm
                     Zones[index].internalSetZoneVoltage(zoneVoltage);
             }
 
-            //Alarm By Zone Report 
+            //Alarm By Zone Report (tested)
             if (repType.Contains("AZ"))
             {
                 data = returnString.Substring(repType.IndexOf("AZ"));
@@ -311,6 +310,8 @@ namespace ElkAlarm
                 for (int i = 0; i < zpArray.Length; i++)
                     if (Zones.ContainsKey(i+1))
                         Zones[i+1].internalSetZoneArea(hexToInt(zpArray[i]));
+                foreach (var a in Areas)
+                    a.Value.internalZoneAssignmentChanged();
             }
 
             //Area Status (tested)
@@ -332,7 +333,7 @@ namespace ElkAlarm
                     }
             }
 
-            //Output Status
+            //Output Status (tested)
             if (repType.Contains("CS"))
             {
                 data = returnString.Substring(repType.IndexOf("CS"));
@@ -347,7 +348,7 @@ namespace ElkAlarm
                             Outputs[i + 1].internalOutputStateSet(false);
             }
 
-            //Output Status
+            //Output Status (tested)
             if (repType.Contains("CC"))
             {
                 data = returnString.Substring(repType.IndexOf("CC"));
@@ -438,6 +439,7 @@ namespace ElkAlarm
             }
             catch (Exception e)
             {
+                ErrorLog.Error("ElkPanel {0} - Simple client registration error: {1}", panelId, e.Message);
                 return false;
             }
         }

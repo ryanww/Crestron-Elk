@@ -9,7 +9,7 @@ namespace ElkAlarm
     public class ElkPassword
     {
         private string pwProtected = "";
-        List<int> code;
+        List<int> code = new List<int>();
 
 
         //Public Functions -------------------------------------------------------

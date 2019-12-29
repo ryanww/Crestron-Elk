@@ -65,6 +65,7 @@
     <Reference Include="TCPClient, Version=1.0.0.22405, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ElkAreaSimpl.cs" />
     <Compile Include="ElkOutput.cs" />
     <Compile Include="ElkCore.cs" />
     <Compile Include="ElkArea.cs" />

@@ -50,124 +50,127 @@ namespace ElkAlarm
         public eZoneStatus getZoneStatus { get { return zoneStatus; } }
         public eZoneType getZoneType { get { return zoneType; } }
         public string getZoneName { get { return zoneName; } }
+        public int getZoneAreaAssignment { get { return areaAssignment; } }
 
         public eZoneDefinition getZoneDefinition { get { return zoneDefinition; } }
         public string getZoneDefinitionString()
         {
+            string ret = "";
             switch (zoneDefinition)
             {
                 case eZoneDefinition.Disabled:
-                    return "Disabled";
+                    ret = "Disabled";
                     break;
                 case eZoneDefinition.BurglarEntryExit1:
-                    return "Burglar Entry/Exit 1";
+                    ret = "Burglar Entry/Exit 1";
                     break;
                 case eZoneDefinition.BurglarEntryExit2:
-                    return "Burglar Entry/Exit 2";
+                    ret = "Burglar Entry/Exit 2";
                     break;
                 case eZoneDefinition.BurglarPerimeterInstant:
-                    return "Burglar Perimeter Instant";
+                    ret = "Burglar Perimeter Instant";
                     break;
                 case eZoneDefinition.BurglarInterior:
-                    return "Burglar Interior";
+                    ret = "Burglar Interior";
                     break;
                 case eZoneDefinition.BurglarInteriorFollower:
-                    return "Burglar Interior Follower";
+                    ret = "Burglar Interior Follower";
                     break;
                 case eZoneDefinition.BurglarInteriorNight:
-                    return "Burglar Interior Night";
+                    ret = "Burglar Interior Night";
                     break;
                 case eZoneDefinition.BurglarInteriorNightDelay:
-                    return "Burglar Interior Night Delay";
+                    ret = "Burglar Interior Night Delay";
                     break;
                 case eZoneDefinition.Burglar24Hour:
-                    return "Burglar 24 Hour";
+                    ret = "Burglar 24 Hour";
                     break;
                 case eZoneDefinition.BurglarBoxTamper:
-                    return "Burglar Box Tamper";
+                    ret = "Burglar Box Tamper";
                     break;
                 case eZoneDefinition.FireAlarm:
-                    return "Fire Alarm";
+                    ret = "Fire Alarm";
                     break;
                 case eZoneDefinition.FireVerified:
-                    return "Fire Verified";
+                    ret = "Fire Verified";
                     break;
                 case eZoneDefinition.FireSupervisory:
-                    return "Fire Supervisory";
+                    ret = "Fire Supervisory";
                     break;
                 case eZoneDefinition.AuxAlarm1:
-                    return "Aux Alarm 1";
+                    ret = "Aux Alarm 1";
                     break;
                 case eZoneDefinition.AuxAlarm2:
-                    return "Aux Alarm 2";
+                    ret = "Aux Alarm 2";
                     break;
                 case eZoneDefinition.Keyfob:
-                    return "Keyfob";
+                    ret = "Keyfob";
                     break;
                 case eZoneDefinition.NonAlarm:
-                    return "Non Alarm";
+                    ret = "Non Alarm";
                     break;
                 case eZoneDefinition.CarbonMonoxide:
-                    return "Carbon Monoxide";
+                    ret = "Carbon Monoxide";
                     break;
                 case eZoneDefinition.EmergencyAlarm:
-                    return "Emergency Alarm";
+                    ret = "Emergency Alarm";
                     break;
                 case eZoneDefinition.FreezeAlarm:
-                    return "Freeze Alarm";
+                    ret = "Freeze Alarm";
                     break;
                 case eZoneDefinition.GasAlarm:
-                    return "Gas Alarm";
+                    ret = "Gas Alarm";
                     break;
                 case eZoneDefinition.HeatAlarm:
-                    return "Heat Alarm";
+                    ret = "Heat Alarm";
                     break;
                 case eZoneDefinition.MedicalAlarm:
-                    return "Medical Alarm";
+                    ret = "Medical Alarm";
                     break;
                 case eZoneDefinition.PoliceAlarm:
-                    return "Police Alarm";
+                    ret = "Police Alarm";
                     break;
                 case eZoneDefinition.PoliceNoIndication:
-                    return "Police No Indication";
+                    ret = "Police No Indication";
                     break;
                 case eZoneDefinition.WaterAlarm:
-                    return "WaterAlarm";
+                    ret = "WaterAlarm";
                     break;
                 case eZoneDefinition.KeyMomentaryArmDisarm:
-                    return "Key Momentary Arm/Disarm";
+                    ret = "Key Momentary Arm/Disarm";
                     break;
                 case eZoneDefinition.KeyMomentaryArmAway:
-                    return "Key Momentary Arm Away";
+                    ret = "Key Momentary Arm Away";
                     break;
                 case eZoneDefinition.KeyMomentaryArmStay:
-                    return "Key Momentary Arm Stay";
+                    ret = "Key Momentary Arm Stay";
                     break;
                 case eZoneDefinition.KeyOnOff:
-                    return "Key On/Off";
+                    ret = "Key On/Off";
                     break;
                 case eZoneDefinition.MuteAudibles:
-                    return "Mute Audibles";
+                    ret = "Mute Audibles";
                     break;
                 case eZoneDefinition.PowerSupervisory:
-                    return "Power Supervisory";
+                    ret = "Power Supervisory";
                     break;
                 case eZoneDefinition.Temperature:
-                    return "Temperature";
+                    ret = "Temperature";
                     break;
                 case eZoneDefinition.AnalogZone:
-                    return "Analog Zone";
+                    ret = "Analog Zone";
                     break;
                 case eZoneDefinition.PhoneKey:
-                    return "Phone Key";
+                    ret = "Phone Key";
                     break;
                 case eZoneDefinition.IntercomKey:
-                    return "Intercom Key";
+                    ret = "Intercom Key";
                     break;
                 default:
-                    return "";
+                    ret = "";
                     break;
             }
+            return ret;
         }
 
         //Internal Functions -------------------------------------------------------
