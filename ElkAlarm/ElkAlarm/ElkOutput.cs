@@ -41,9 +41,9 @@ namespace ElkAlarm
             myPanel.Enqueue(string.Format("ct{0:000}00", outputNumber));
         }
 
-        public bool getOutputState { get { return outputState; } }
-        public string getOutputName { get { return outputName; } }
-        public int getOutputNumber { get { return outputNumber; } }
+        public bool GetOutputState { get { return outputState; } }
+        public string GetOutputName { get { return outputName; } }
+        public int GetOutputNumber { get { return outputNumber; } }
 
 
         //Internal Functions -------------------------------------------------------

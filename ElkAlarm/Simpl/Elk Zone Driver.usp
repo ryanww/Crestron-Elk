@@ -3,58 +3,108 @@
 #INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
 #USER_SIMPLSHARP_LIBRARY "ElkAlarm"
 
-Digital_Input _skip_,Zone_Bypass, Zone_Unbypass, Zone_Bypass_Toggle;
+Digital_Input _skip_, Zone_Bypass, Zone_Trigger;
 
-Digital_Output _skip_, Zone_Status[4], Zone_Type[4];
-String_Output _skip_, Zone_Description;
-
-ElkZoneSimpl zone;
-
-integer_parameter ZoneNumber;
+Analog_Output _skip_, Area_Assignment, Zone_Voltage;
+Digital_Output _skip_, Zone_Status_fb[5], Zone_Type_fb[4], Zone_Definition_fb[37];
+String_Output _skip_, Zone_Name, Zone_Definition_String;
 
 
+ElkZoneSimpl myZone;
+
+integer_parameter PanelNumber, ZoneNumber;
 
 Push Zone_Bypass
 {
-    zone.SetBypassState(1);
+    myZone.BypassRequest();
+}
+Push Zone_Trigger
+{
+    myZone.ZoneTripTrigger();
 }
 
-Push Zone_Unbypass
+Callback Function onStatusChange(integer _index)
 {
-    zone.SetBypassState(0);
-}
-Push Zone_Bypass_Toggle
-{
-    zone.SetBypassToggle();
-}
-
-Callback Function onStatusChange(integer index)
-{
-    setarray(Zone_Status,0);
-    Zone_Status[index+1] = 1;
+    setarray(Zone_Status_fb,0);
+    Zone_Status_fb[_index+1] = 1;
     // Normal = 0,
     // Trouble = 1,
     // Violated = 2,
-    // Bypassed = 3
+    // Bypassed = 3,
+    // SoftBypassed = 4
 }
-Callback Function onTypeChange(integer index)
+Callback Function onTypeChange(integer _index)
 {
-    setarray(Zone_Type,0);
-    Zone_Type[index+1] = 1;
+    setarray(Zone_Type_fb,0);
+    Zone_Type_fb[_index+1] = 1;
     // Unconfigured = 0,
     // Open = 1,
     // EOL = 2,
     // Short = 3
 }
-Callback Function onDescriptionChange(string desc)
+Callback Function onNameChange(string _name)
 {
-    Zone_Description = desc;
+    Zone_Name = _name;
+}
+Callback Function onVoltageChange(integer _voltage)
+{
+    Zone_Voltage = _voltage;
+}
+Callback Function onDefinitionChange(integer _index)
+{
+    setarray(Zone_Definition_fb,0);
+    Zone_Definition_fb[_index+1] = 1;
+    Zone_Definition_String = myZone.GetZoneDefinition();
+    // Disabled = 0,
+    // BurglarEntryExit1 = 1,
+    // BurglarEntryExit2 = 2,
+    // BurglarPerimeterInstant = 3,
+    // BurglarInterior = 4,
+    // BurglarInteriorFollower = 5,
+    // BurglarInteriorNight = 6,
+    // BurglarInteriorNightDelay = 7,
+    // Burglar24Hour = 8,
+    // BurglarBoxTamper = 9,
+    // FireAlarm = 10,
+    // FireVerified = 11,
+    // FireSupervisory = 12,
+    // AuxAlarm1 = 13,
+    // AuxAlarm2 = 14,
+    // Keyfob = 15,
+    // NonAlarm = 16,
+    // CarbonMonoxide = 17,
+    // EmergencyAlarm = 18,
+    // FreezeAlarm = 19,
+    // GasAlarm = 20,
+    // HeatAlarm = 21,
+    // MedicalAlarm = 22,
+    // PoliceAlarm = 23,
+    // PoliceNoIndication = 24,
+    // WaterAlarm = 25,
+    // KeyMomentaryArmDisarm = 26,
+    // KeyMomentaryArmAway = 27,
+    // KeyMomentaryArmStay = 28,
+    // KeyMomentaryDisarm = 29,
+    // KeyOnOff = 30,
+    // MuteAudibles = 31,
+    // PowerSupervisory = 32,
+    // Temperature = 33,
+    // AnalogZone = 34,
+    // PhoneKey = 35,
+    // IntercomKey = 36
+}
+Callback Function onAreaAssignmentChange(integer _area)
+{
+    Area_Assignment = _area;
 }
 
 Function Main()
 {              
-    RegisterDelegate(zone, newStatusChange, onStatusChange);
-    RegisterDelegate(zone, newTypeChange, onTypeChange);
-    RegisterDelegate(zone, newDescriptionChange, onDescriptionChange);
-    zone.Initialize(ZoneNumber);        
+    RegisterDelegate(myZone, newStatusChange, onStatusChange);
+    RegisterDelegate(myZone, newTypeChange, onTypeChange);
+    RegisterDelegate(myZone, newNameChange, onNameChange);
+    RegisterDelegate(myZone, newVoltageChange, onVoltageChange);
+    RegisterDelegate(myZone, newDefinitionChange, onDefinitionChange);
+    RegisterDelegate(myZone, newAreaAssignmentChange, onAreaAssignmentChange);
+    myZone.Initialize(PanelNumber, ZoneNumber);        
 }

@@ -8,45 +8,77 @@ namespace ElkAlarm
 {
     public class ElkZoneSimpl
     {
-        public delegate void StatusChange(ushort status);
+
+        public delegate void StatusChange(ushort _status);
         public StatusChange newStatusChange { get; set; }
-        public delegate void TypeChange(ushort type);
+        public delegate void TypeChange(ushort _type);
         public TypeChange newTypeChange { get; set; }
-        public delegate void DescriptionChange(SimplSharpString description);
-        public DescriptionChange newDescriptionChange { get; set; }
+        public delegate void NameChange(SimplSharpString _name);
+        public NameChange newNameChange { get; set; }
+        public delegate void DefinitionChange(ushort _definition);
+        public DefinitionChange newDefinitionChange { get; set; }
+        public delegate void VoltageChange(ushort _voltage);
+        public VoltageChange newVoltageChange { get; set; }
+        public delegate void AreaAssignmentChange(ushort _area);
+        public AreaAssignmentChange newAreaAssignmentChange { get; set; }
 
-        private ElkZone zone;
 
-        public void Initialize(ushort zoneNum)
-        {
-            zone = new ElkZone(zoneNum);
-            zone.ElkZoneEvent += new EventHandler<ElkZoneEventArgs>(zone_ElkZoneEvent);
-        }
+        private ElkPanel myPanel;
+        private ElkZone myZone;
 
-        public void SetBypassState(ushort state)
+        //Init -------------------------------------------------------
+        public void Initialize(ushort _panel, ushort _zoneNumber)
         {
-            zone.BypassStateSet(Convert.ToBoolean(state));
-        }
-        public void SetBypassToggle()
-        {
-            zone.BypassStateToggle();
-        }
+            myPanel = ElkCore.AddOrGetCoreObject(_panel);
+            if (myPanel == null)
+                return;
 
-        private void zone_ElkZoneEvent(object sender, ElkZoneEventArgs e)
-        {
-            switch (e.EventID)
+            if (myPanel.Zones.ContainsKey((int)_zoneNumber))
             {
-                case eElkZoneEventID.StatusChange:
-                    if (newStatusChange != null)
-                        newStatusChange((ushort)zone.getZoneStatus);
+                myZone = myPanel.Zones[(int)_zoneNumber];
+                myZone.ElkZoneEvent += new EventHandler<ElkZoneEventArgs>(myZone_ElkZoneEvent);
+            }
+        }
+
+
+        //Public Functions -------------------------------------------------------
+        public void BypassRequest()
+        {
+            myZone.BypassRequest();
+        }
+        public void ZoneTripTrigger()
+        {
+            myZone.ZoneTripTrigger();
+        }
+        public SimplSharpString GetZoneDefinition()
+        {
+            return (SimplSharpString)myZone.GetZoneDefinitionString();
+        }
+
+
+        //Events -------------------------------------------------------
+        void myZone_ElkZoneEvent(object sender, ElkZoneEventArgs e)
+        {
+            switch (e.EventUpdateType)
+            {
+                case eElkZoneEventUpdateType.StatusChange:
+                    newStatusChange((ushort)myZone.GetZoneStatus);
                     break;
-                case eElkZoneEventID.TypeChange:
-                    if (newTypeChange != null)
-                        newTypeChange((ushort)zone.getZoneType);
+                case eElkZoneEventUpdateType.TypeChange:
+                    newTypeChange((ushort)myZone.GetZoneType);
                     break;
-                case eElkZoneEventID.DescriptionChange:
-                    if (newDescriptionChange != null)
-                        newDescriptionChange((SimplSharpString)zone.getZoneDescription);
+                case eElkZoneEventUpdateType.NameChange:
+                    newNameChange((SimplSharpString)myZone.GetZoneName);
+                    break;
+                case eElkZoneEventUpdateType.DefinitionChange:
+                    newDefinitionChange((ushort)myZone.GetZoneDefinition);
+                    break;
+                case eElkZoneEventUpdateType.VoltageChange:
+                    double v = myZone.GetZoneVoltage() * 10;
+                    newVoltageChange((ushort)v);
+                    break;
+                case eElkZoneEventUpdateType.AreaAssignmentChange:
+                    newAreaAssignmentChange((ushort)myZone.GetZoneAreaAssignment);
                     break;
             }
         }

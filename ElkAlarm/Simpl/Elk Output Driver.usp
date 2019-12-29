@@ -1,0 +1,45 @@
+#SYMBOL_NAME "Elk Output Driver"
+
+#INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
+#USER_SIMPLSHARP_LIBRARY "ElkAlarm"
+
+Digital_Input _skip_, Output_On, Output_Off, Output_Toggle;
+analog_input _skip_, On_Seconds;
+
+Digital_Output _skip_, Output_On_fb, Output_Off_fb;
+String_Output _skip_, Output_Name;
+
+
+ElkOutputSimpl myOutput;
+
+integer_parameter PanelNumber, OutputNumber;
+
+Push Output_On
+{
+    myOutput.SetOutputOn(On_Seconds);
+}
+Push Output_Off
+{
+    myOutput.SetOutputOff();
+}
+Push Output_Toggle
+{
+    myOutput.SetOutputToggle();
+}
+
+Callback Function onStateChange(integer _state)
+{
+    Output_On_fb = _state = 1;
+    Output_Off_fb = _state = 0;
+}
+Callback Function onNameChange(string _name)
+{
+    Output_Name = _name;
+}
+
+Function Main()
+{              
+    RegisterDelegate(myOutput, newStateChange, onStateChange);
+    RegisterDelegate(myOutput, newNameChange, onNameChange);
+    myOutput.Initialize(PanelNumber, OutputNumber);        
+}

@@ -79,7 +79,7 @@ namespace ElkAlarm
         public ushort GetZoneAssignment(ushort _zone)
         {
             if (myPanel.Zones.ContainsKey(_zone))
-                return (ushort)myPanel.Zones[_zone].getZoneAreaAssignment == myArea.GetAreaNumber ? (ushort)1 : (ushort)0;
+                return (ushort)myPanel.Zones[_zone].GetZoneAreaAssignment == myArea.GetAreaNumber ? (ushort)1 : (ushort)0;
             else
                 return (ushort)0;
         }

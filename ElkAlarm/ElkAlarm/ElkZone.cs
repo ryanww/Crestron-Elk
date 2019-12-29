@@ -18,7 +18,6 @@ namespace ElkAlarm
         private string zoneName = "";
         private eZoneDefinition zoneDefinition;
         private double zoneVoltage = 0.0;
-        private bool zoneBypassed = false;
         private int areaAssignment = 0;
 
         //Init -------------------------------------------------------
@@ -34,9 +33,12 @@ namespace ElkAlarm
         {
             if (myPanel.Areas.ContainsKey(areaAssignment) && areaAssignment > 0)
             {
-                string cmdStr = string.Format("zb{0:000}{1}{2}00", zoneNumber, areaAssignment, myPanel.Areas[areaAssignment].myPw.getPassword());
-                myPanel.SendDebug(string.Format("Zone {0} - BypassRequest = {1}", zoneNumber, cmdStr));
-                myPanel.Enqueue(cmdStr);
+                if (myPanel.Areas[areaAssignment].myPw.IsValidCodeEntered())
+                {
+                    string cmdStr = string.Format("zb{0:000}{1}{2}00", zoneNumber, areaAssignment, myPanel.Areas[areaAssignment].myPw.getPassword());
+                    myPanel.SendDebug(string.Format("Zone {0} - BypassRequest = {1}", zoneNumber, cmdStr));
+                    myPanel.Enqueue(cmdStr);
+                }
             }
             else
                 ErrorLog.Error("ElkPanel {0} - Zone {1} doesnt have internal area assignment set.", myPanel.getPanelId, zoneNumber);
@@ -47,13 +49,12 @@ namespace ElkAlarm
             myPanel.SendDebug(string.Format("Zone {0} - ZoneTripTrigger = {1}", zoneNumber, cmdStr));
             myPanel.Enqueue(cmdStr);
         }
-        public eZoneStatus getZoneStatus { get { return zoneStatus; } }
-        public eZoneType getZoneType { get { return zoneType; } }
-        public string getZoneName { get { return zoneName; } }
-        public int getZoneAreaAssignment { get { return areaAssignment; } }
-
-        public eZoneDefinition getZoneDefinition { get { return zoneDefinition; } }
-        public string getZoneDefinitionString()
+        public eZoneStatus GetZoneStatus { get { return zoneStatus; } }
+        public eZoneType GetZoneType { get { return zoneType; } }
+        public string GetZoneName { get { return zoneName; } }
+        public int GetZoneAreaAssignment { get { return areaAssignment; } }
+        public eZoneDefinition GetZoneDefinition { get { return zoneDefinition; } }
+        public string GetZoneDefinitionString()
         {
             string ret = "";
             switch (zoneDefinition)
@@ -172,6 +173,10 @@ namespace ElkAlarm
             }
             return ret;
         }
+        public double GetZoneVoltage()
+        {
+            return zoneVoltage;
+        }
 
         //Internal Functions -------------------------------------------------------
 
@@ -285,11 +290,11 @@ namespace ElkAlarm
         }
         internal void internalSetBypass(bool state)
         {
-            if (zoneBypassed != state)
+            if (zoneStatus != eZoneStatus.Bypassed)
             {
-                zoneBypassed = state;
-                myPanel.SendDebug(string.Format("Zone {0} - internalSetBypass = {1}", zoneNumber, zoneBypassed));
-                OnElkZoneEvent(eElkZoneEventUpdateType.BypassChange);
+                zoneStatus = eZoneStatus.Bypassed;
+                myPanel.SendDebug(string.Format("Zone {0} - internalSetBypass = {1}", zoneNumber, zoneStatus));
+                OnElkZoneEvent(eElkZoneEventUpdateType.StatusChange);
             }
             checkRegistered();
         }
@@ -397,7 +402,6 @@ namespace ElkAlarm
         NameChange = 2,
         DefinitionChange = 3,
         VoltageChange = 4,
-        BypassChange = 5,
-        AreaAssignmentChange = 6
+        AreaAssignmentChange = 5
     }
 }
