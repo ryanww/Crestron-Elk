@@ -30,6 +30,7 @@ namespace ElkAlarm
         internal Dictionary<int, ElkArea> Areas = new Dictionary<int, ElkArea>();
         internal Dictionary<int, ElkZone> Zones = new Dictionary<int, ElkZone>();
         internal Dictionary<int, ElkOutput> Outputs = new Dictionary<int, ElkOutput>();
+        internal Dictionary<int, ElkKeypad> Keypads = new Dictionary<int, ElkKeypad>();
 
         //Initialize
         public void Initialize(int _panelId)
@@ -71,8 +72,6 @@ namespace ElkAlarm
 
             commandQueue = new CrestronQueue<string>();
             responseQueue = new CrestronQueue<string>();
-
-            this.panelId = _panelId;
 
             this.initRun = true;
         }
