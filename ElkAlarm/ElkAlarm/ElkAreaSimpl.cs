@@ -8,20 +8,32 @@ namespace ElkAlarm
 {
     public class ElkAreaSimpl
     {
-
         public delegate void ArmedStatusChange(ushort _armedStatus);
+
         public ArmedStatusChange newArmedStatusChange { get; set; }
+
         public delegate void ArmUpStateChange(ushort _armUpState);
+
         public ArmUpStateChange newArmUpStateChange { get; set; }
+
         public delegate void AlarmStateChange(ushort _alarmState);
+
         public AlarmStateChange newAlarmStatusChange { get; set; }
+
         public delegate void NameChange(SimplSharpString _name);
+
         public NameChange newNameChange { get; set; }
+
         public delegate void ClockChange(SimplSharpString _clock);
+
         public ClockChange newClockChange { get; set; }
+
         public delegate void PwChange(SimplSharpString _pw);
+
         public PwChange newPwChange { get; set; }
+
         public delegate void ZoneAssignmentChange();
+
         public ZoneAssignmentChange newZoneAssignmentChange { get; set; }
 
         private ElkPanel myPanel;
@@ -48,34 +60,45 @@ namespace ElkAlarm
             eAreaArmSet tas = (eAreaArmSet)Enum.Parse(typeof(eAreaArmSet), Convert.ToString(_armState), true);
             myArea.SetArmLevel(tas);
         }
+
         public void KeypadNumber(ushort _b)
         {
             myArea.myPw.AddKeyToPassword((int)_b);
         }
+
         public void KeypadBackspace()
         {
             myArea.myPw.Backspace();
         }
+
         public void KeypadClear()
         {
             myArea.myPw.ClearPassword();
         }
+
         public ushort GetAlarmCountdownClockShow()
         {
             return myArea.GetAlarmCountdownClockShow ? (ushort)1 : (ushort)0;
         }
+
         public SimplSharpString GetAreaArmedStatusString()
         {
             return (SimplSharpString)myArea.GetAreaArmedStatusString;
         }
+
         public SimplSharpString GetAreaArmUpStateString()
         {
-            return (SimplSharpString)myArea.GetAreaArmUpStateString;
+            SimplSharpString AreaArmUpStateText = (SimplSharpString)myArea.GetAreaArmUpStateString;
+            CrestronConsole.PrintLine("***ARM UP STATE TEXT*** {0}", AreaArmUpStateText);
+
+            return AreaArmUpStateText;
         }
+
         public SimplSharpString GetAlarmStatusString()
         {
             return (SimplSharpString)myArea.GetAlarmStatusString;
         }
+
         public ushort GetZoneAssignment(ushort _zone)
         {
             if (myPanel.Zones.ContainsKey(_zone))
@@ -84,10 +107,8 @@ namespace ElkAlarm
                 return (ushort)0;
         }
 
-
-
         //Events -------------------------------------------------------
-        void myArea_ElkAreaEvent(object sender, ElkAreaEventArgs e)
+        private void myArea_ElkAreaEvent(object sender, ElkAreaEventArgs e)
         {
             switch (e.EventUpdateType)
             {
@@ -117,11 +138,11 @@ namespace ElkAlarm
                     break;
             }
         }
-        void myPw_ElkPasswordEvent(object sender, ElkPasswordEventArgs e)
+
+        private void myPw_ElkPasswordEvent(object sender, ElkPasswordEventArgs e)
         {
             if (newPwChange != null)
                 newPwChange((SimplSharpString)e.Password);
         }
-
     }
 }

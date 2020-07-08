@@ -46,9 +46,6 @@ namespace ElkAlarm
         }
     }
 
-
-
-
     //Simpl
     public class SimplEvents
     {
@@ -92,6 +89,7 @@ namespace ElkAlarm
     public enum eElkSimplEventIds
     {
         IsRegistered = 1,
-        IsConnected = 2
+        IsConnected = 2,
+        IsInstallerMode = 3
     }
 }

@@ -1,5 +1,5 @@
 #SYMBOL_NAME "Elk Area Driver"
-
+#PRINT_TO_TRACE
 #INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
 #USER_SIMPLSHARP_LIBRARY "ElkAlarm"
 
@@ -118,6 +118,8 @@ Push KP_Clear
 
 Callback Function onArmedStatusChange(integer _as)
 {
+    string armedStatusText[254];
+    
     Armed_State_Disarmed_fb = _as = 0;
     Armed_State_Armed_Away_fb = _as = 1;
     Armed_State_Stay_fb = _as = 2;
@@ -125,10 +127,13 @@ Callback Function onArmedStatusChange(integer _as)
     Armed_State_Armed_To_Night_fb = _as = 4;
     Armed_State_Armed_To_Night_Instant_fb = _as = 5;
     Armed_State_Vacation_fb = _as = 6;
-    Armed_Status_Text = myArea.GetAreaArmedStatusString(); 
+    armedStatusText = myArea.GetAreaArmedStatusString(); 
+    Armed_Status_Text = armedStatusText;
 }
 Callback Function onArmUpStateChange(integer _au)
 {
+    string armUpStateText[255];
+
     Arm_Up_State_Not_Ready_fb = _au = 0;
     Arm_Up_State_Ready_To_Arm_fb = _au = 1;
     Arm_Up_State_Ready_To_Arm_With_Force_fb = _au = 2;
@@ -136,10 +141,13 @@ Callback Function onArmUpStateChange(integer _au)
     Arm_Up_State_Armed_fb = _au = 4;
     Arm_Up_State_Force_Armed_With_Violation_fb = _au = 5;
     Arm_Up_State_Armed_With_Bypass_fb = _au = 6;
-    Arm_Up_State_Text = myArea.GetAreaArmUpStateString();
+    armUpStateText = myArea.GetAreaArmUpStateString();
+    Arm_Up_State_Text = armUpStateText;
 }
 Callback Function onAlarmStatusChange(integer _as)
 {
+    string armedStatusText[254];
+
     Alarm_State_No_Alarm_Active_fb = _as = 0;
     Alarm_State_Entrance_Delay_Active_fb = _as = 1;
     Alarm_State_Alarm_Abort_Delay_Active_fb = _as = 2;
@@ -159,7 +167,8 @@ Callback Function onAlarmStatusChange(integer _as)
     Alarm_State_Water_Alarm_fb = _as = 16;
     Alarm_State_Fire_Supervisory_fb = _as = 17;
     Alarm_State_Verify_Fire_fb = _as = 18;
-    Alarm_Status_Text = myArea.GetAlarmStatusString();
+    armedStatusText = myArea.GetAreaArmedStatusString(); 
+    Armed_Status_Text = armedStatusText;
 }
 
 Callback Function onNameChange(string _name)

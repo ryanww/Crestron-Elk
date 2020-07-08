@@ -16,9 +16,9 @@ namespace ElkAlarm
         private ElkPanel myPanel;
         public ElkPassword myPw = new ElkPassword();
 
-        private eAreaArmedStatus armedStatus;
-        private eAreaArmUpState armUpState;
-        private eAreaAlarmState alarmState;
+        private eAreaArmedStatus armedStatus = eAreaArmedStatus.Uninitialized;
+        private eAreaArmUpState armUpState = eAreaArmUpState.Uninitialized;
+        private eAreaAlarmState alarmState = eAreaAlarmState.Uninitialized;
         private int countdownClock;
         private bool showTimer;
 
@@ -38,26 +38,29 @@ namespace ElkAlarm
                 al += (char)(int)arm;
 
                 string pw = myPw.getPassword();
-                
 
                 string cmdStr = string.Format("a{0}{1}{2}00", al, areaNumber, pw);
                 myPanel.SendDebug(string.Format("Area {0} - SetArmLevel = {1} ({2})", areaNumber, arm, cmdStr));
                 myPanel.Enqueue(cmdStr);
             }
         }
+
         public void UnbypassAllZones()
         {
             string cmdStr = string.Format("zb000{0}{1}00", areaNumber, myPw.getPassword());
             myPanel.SendDebug(string.Format("Area {0} - UnbypassAllZones = {1}", areaNumber, cmdStr));
             myPanel.Enqueue(cmdStr);
         }
+
         public void BypassAllZones()
         {
             string cmdStr = string.Format("zb999{0}{1}00", areaNumber, myPw.getPassword());
             myPanel.SendDebug(string.Format("Area {0} - BypassAllZones = {1}", areaNumber, cmdStr));
             myPanel.Enqueue(cmdStr);
         }
+
         public eAreaArmedStatus GetAreaArmedStatus { get { return armedStatus; } }
+
         public string GetAreaArmedStatusString
         {
             get
@@ -93,7 +96,9 @@ namespace ElkAlarm
                 return ret;
             }
         }
+
         public eAreaArmUpState GetAreaArmUpState { get { return armUpState; } }
+
         public string GetAreaArmUpStateString
         {
             get
@@ -129,7 +134,9 @@ namespace ElkAlarm
                 return ret;
             }
         }
+
         public eAreaAlarmState GetAlarmStatus { get { return alarmState; } }
+
         public string GetAlarmStatusString
         {
             get
@@ -173,7 +180,7 @@ namespace ElkAlarm
                     case eAreaAlarmState.CarbonMonoxideAlarm:
                         ret = "Carbon Monoxide Alarm";
                         break;
-                   case eAreaAlarmState. EmergencyAlarm:
+                    case eAreaAlarmState.EmergencyAlarm:
                         ret = "Emergency Alarm";
                         break;
                     case eAreaAlarmState.FreezeAlarm:
@@ -201,10 +208,13 @@ namespace ElkAlarm
                 return ret;
             }
         }
+
         public string GetAreaName { get { return areaName; } }
+
         public string GetAlarmCountdownClockString
         {
-            get {
+            get
+            {
                 string c = "";
                 //Exit
                 if (armUpState == eAreaArmUpState.ArmedWithExitTimer)
@@ -215,7 +225,9 @@ namespace ElkAlarm
                 return c;
             }
         }
+
         public bool GetAlarmCountdownClockShow { get { return showTimer; } }
+
         public int GetAreaNumber { get { return areaNumber; } }
 
         //Core internal -------------------------------------------------------
@@ -230,6 +242,7 @@ namespace ElkAlarm
             }
             checkRegistered();
         }
+
         internal void internalSetAreaArmUpState(int s)
         {
             eAreaArmUpState te = (eAreaArmUpState)Enum.Parse(typeof(eAreaArmUpState), Convert.ToString(s), true);
@@ -243,6 +256,7 @@ namespace ElkAlarm
             }
             checkRegistered();
         }
+
         internal void internalSetAreaAlarmState(int s)
         {
             eAreaAlarmState te = (eAreaAlarmState)Enum.Parse(typeof(eAreaAlarmState), Convert.ToString(s), true);
@@ -256,6 +270,7 @@ namespace ElkAlarm
             }
             checkRegistered();
         }
+
         internal void internalSetAreaName(string name)
         {
             if (areaName != name)
@@ -266,6 +281,7 @@ namespace ElkAlarm
             }
             checkRegistered();
         }
+
         internal void internalSetCountdownClock(int c)
         {
             if (countdownClock != c)
@@ -276,11 +292,11 @@ namespace ElkAlarm
             }
             checkRegistered();
         }
+
         internal void internalZoneAssignmentChanged()
         {
             OnElkAreaEvent(eElkAreaEventUpdateType.ZoneAssignmentChange);
         }
-        
 
         //Private Functions -------------------------------------------------------
         private void checkTimer()
@@ -298,6 +314,7 @@ namespace ElkAlarm
             }
             //TODO: Implement Timer
         }
+
         private void checkRegistered()
         {
             if (!isRegistered)
@@ -309,18 +326,15 @@ namespace ElkAlarm
             }
         }
 
-
         //Events -------------------------------------------------------
         public event EventHandler<ElkAreaEventArgs> ElkAreaEvent;
+
         protected virtual void OnElkAreaEvent(eElkAreaEventUpdateType updateType)
         {
             if (ElkAreaEvent != null)
                 ElkAreaEvent(this, new ElkAreaEventArgs() { Area = areaNumber, EventUpdateType = updateType });
         }
-
-
     }
-
 
     //Enum's -------------------------------------------------------
     public enum eAreaArmSet
@@ -337,8 +351,10 @@ namespace ElkAlarm
         ForceArmToAwayMode = 9,
         ForceArmToStayMode = 10
     }
+
     public enum eAreaArmedStatus
     {
+        Uninitialized = -1,
         Disarmed = 0,
         ArmedAway = 1,
         ArmedStay = 2,
@@ -347,8 +363,10 @@ namespace ElkAlarm
         ArmedNightInstant = 5,
         ArmedVacation = 6
     }
+
     public enum eAreaArmUpState
     {
+        Uninitialized = -1,
         NotReadyToArm = 0,
         ReadyToArm = 1,
         ReadyToArmIfForced = 2,
@@ -357,8 +375,10 @@ namespace ElkAlarm
         ForceArmed = 5,
         ArmedWithBypass = 6
     }
+
     public enum eAreaAlarmState
     {
+        Uninitialized = -1,
         NoAlarmActive = 0,
         EntranceDelayActive = 1,
         AlarmAbortDelayActive = 2,
@@ -372,7 +392,7 @@ namespace ElkAlarm
         Aux4Alarm = 10, //not used
         CarbonMonoxideAlarm = 11,
         EmergencyAlarm = 12,
-        FreezeAlarm= 13,
+        FreezeAlarm = 13,
         GasAlarm = 14,
         HeatAlarm = 15,
         WaterAlarm = 16,
@@ -380,13 +400,14 @@ namespace ElkAlarm
         VerifyFire = 18
     }
 
-
     //Events -------------------------------------------------------
     public class ElkAreaEventArgs : EventArgs
     {
         public int Area { get; set; }
+
         public eElkAreaEventUpdateType EventUpdateType { get; set; }
     }
+
     public enum eElkAreaEventUpdateType
     {
         ArmedStatusChange = 0,
