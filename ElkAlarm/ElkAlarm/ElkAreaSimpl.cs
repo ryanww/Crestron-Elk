@@ -89,7 +89,6 @@ namespace ElkAlarm
         public SimplSharpString GetAreaArmUpStateString()
         {
             SimplSharpString AreaArmUpStateText = (SimplSharpString)myArea.GetAreaArmUpStateString;
-            CrestronConsole.PrintLine("***ARM UP STATE TEXT*** {0}", AreaArmUpStateText);
 
             return AreaArmUpStateText;
         }
