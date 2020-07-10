@@ -11,3 +11,6 @@ C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bi
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\obj\Debug\ResolveAssemblyReference.cache
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\obj\Debug\ElkAlarm.dll
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\obj\Debug\ElkAlarm.pdb
+C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\SimplSharpCustomAttributesInterface.dll
+C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\SimplSharpHelperInterface.dll
+C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\SimplSharpReflectionInterface.dll

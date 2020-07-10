@@ -238,9 +238,12 @@ namespace ElkAlarm
                 return;
             try
             {
-                string repType = returnString.Substring(0, 6);
+                //Trim off the 1st 2chars (message length)
+                returnString = returnString.Substring(2, returnString.Length - 2);
+                string repType = returnString.Substring(0, 4);
+
                 string data = "";
-                CrestronConsole.PrintLine("parse {0}", repType);
+                //CrestronConsole.PrintLine("parse {0}", repType);
                 int index = 0;
 
                 //All Zone Status (tested)
@@ -447,7 +450,7 @@ namespace ElkAlarm
             }
             catch (Exception ex)
             {
-                ErrorLog.Error("ELK Parse Error: {0}", ex.Message);
+                ErrorLog.Error("ELK Parse Error: {0} {1} - {2} ", ex.Message, ex.InnerException, ex.StackTrace);
             }
         }
 
