@@ -24,7 +24,7 @@ namespace ElkAlarm
 
         public NameChange newNameChange { get; set; }
 
-        public delegate void ClockChange(SimplSharpString _clock);
+        public delegate void ClockChange(SimplSharpString _clock, ushort _timerRunning);
 
         public ClockChange newClockChange { get; set; }
 
@@ -129,7 +129,7 @@ namespace ElkAlarm
                     break;
                 case eElkAreaEventUpdateType.ClockChange:
                     if (newClockChange != null)
-                        newClockChange((SimplSharpString)myArea.GetAlarmCountdownClockString);
+                        newClockChange((SimplSharpString)myArea.GetAlarmCountdownClockString, (ushort)GetAlarmCountdownClockShow());
                     break;
                 case eElkAreaEventUpdateType.ZoneAssignmentChange:
                     if (newZoneAssignmentChange != null)

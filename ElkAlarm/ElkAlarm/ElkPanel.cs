@@ -125,7 +125,7 @@ namespace ElkAlarm
             {
                 var data = commandQueue.Dequeue();
                 data = generateChecksumString(data);
-                SendDebug(string.Format("Elk - Sending from queue: {0}", data));
+                //SendDebug(string.Format("Elk - Sending from queue: {0}", data));
                 client.SendCommand(data + "\x0D\x0A");
             }
         }
@@ -153,7 +153,7 @@ namespace ElkAlarm
                             Pos = RxData.ToString().IndexOf("\x0D\x0A");
                             var data = RxData.ToString().Substring(0, Pos);
                             var garbage = RxData.Remove(0, Pos + 2); // remove data from COM buffer
-                            CrestronConsole.PrintLine("send to parse " + data);
+                            //CrestronConsole.PrintLine("send to parse " + data);
                             ParseInternalResponse(data);
                         }
 
@@ -177,7 +177,7 @@ namespace ElkAlarm
         {
             try
             {
-                SendDebug(string.Format("Elk - Received and adding to queue: {0}", data));
+                //SendDebug(string.Format("Elk - Received and adding to queue: {0}", data));
                 responseQueue.Enqueue(data);
             }
             catch (Exception e)
@@ -246,6 +246,25 @@ namespace ElkAlarm
                 //CrestronConsole.PrintLine("parse {0}", repType);
                 int index = 0;
 
+                //Exit-Entry Time Data
+                if (repType.Contains("EE"))
+                {
+                    data = returnString.Substring(repType.IndexOf("EE"));
+
+                    index = int.Parse(data.Substring(2, 1));
+                    int timerType = int.Parse(data.Substring(3, 1));
+                    int timer1 = int.Parse(data.Substring(4, 3));
+                    int timer2 = int.Parse(data.Substring(7, 3));
+                    int armedState = int.Parse(data.Substring(10, 1));
+
+                    SendDebug(String.Format("Area {0} Type {1} Time1 {2} Time2 {3} armedstate {4}", index, timerType, timer1, timer2, armedState));
+
+                    if (Areas.ContainsKey(index))
+                    {
+                        Areas[index].internalSetCountdownClock(timerType, timer1, timer2, armedState);
+                    }
+                }
+
                 //All Zone Status (tested)
                 if (repType.Contains("ZS"))
                 {
@@ -262,7 +281,7 @@ namespace ElkAlarm
                 if (repType.Contains("ZC"))
                 {
                     data = returnString.Substring(repType.IndexOf("ZC"));
-                    SendDebug("Got ZC");
+                    //SendDebug("Got ZC");
                     index = int.Parse(data.Substring(2, 3));
                     if (Zones.ContainsKey(index))
                         Zones[index].internalSetZoneStatus(hexToInt(data.ToCharArray()[5]));
@@ -346,7 +365,7 @@ namespace ElkAlarm
                             Areas[i + 1].internalSetAreaArmedStatus(hexToInt(armedStatusString.ToCharArray()[i]));
                             Areas[i + 1].internalSetAreaArmUpState(hexToInt(armUpStateString.ToCharArray()[i]));
                             Areas[i + 1].internalSetAreaAlarmState(hexToInt(alarmStateString.ToCharArray()[i]));
-                            Areas[i + 1].internalSetCountdownClock(alarmCountdownTime);
+                            //Areas[i + 1].internalSetCountdownClock(alarmCountdownTime);
                         }
                 }
 

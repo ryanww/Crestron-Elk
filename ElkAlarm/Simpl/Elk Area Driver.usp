@@ -1,6 +1,5 @@
 #SYMBOL_NAME "Elk Area Driver"
 #PRINT_TO_TRACE
-#INCLUDEPATH "..\\ElkAlarm\\bin\\Debug"
 #USER_SIMPLSHARP_LIBRARY "ElkAlarm"
 
 Digital_Input _skip_, Disarm, Armed_Away, Armed_Stay, Arm_Stay_Instant, Arm_Night, Arm_Night_Instant, Arm_Vacation, Arm_To_Next_Away_Mode, Arm_To_Next_Stay_Mode, ForceArm_To_Away_Mode, ForceArm_To_Stay_Mode;
@@ -176,10 +175,10 @@ Callback Function onNameChange(string _name)
     Area_Name = _name;
 }
 
-Callback Function onClockChange(string _clock)
+Callback Function onClockChange(string _clock, integer showClock)
 {
     Countdown_Clock_Text = _clock;
-    Show_Clock_fb = myArea.GetAlarmCountdownClockShow();
+    Show_Clock_fb = showClock = 1;
 }
 
 Callback Function onPwChange(string _pw)
