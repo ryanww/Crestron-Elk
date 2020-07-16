@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using countdown;
 using Crestron.SimplSharp;
 using WMS.Utilities;
 
@@ -20,19 +21,34 @@ namespace ElkAlarm
         private eAreaArmedStatus armedStatus = eAreaArmedStatus.Uninitialized;
         private eAreaArmUpState armUpState = eAreaArmUpState.Uninitialized;
         private eAreaAlarmState alarmState = eAreaAlarmState.Uninitialized;
-        private int countdownClock = -1;
-        private bool showTimer;
-        private StopwatchTimer entryExitTimer;
+        private string countdownClock;
+        private bool showTimer = false;
+        private CountdownTimer entryExitTimer;
         private bool entryExitTimerIsRunning = false;
+
+        public ElkArea()
+        {
+            entryExitTimer = new CountdownTimer();
+            entryExitTimer.TimeRemainingFb += new EventHandler<TimeRemainingEventArgs>(entryExitTimer_TimeRemainingFb);
+            entryExitTimer.CountdownTimerStartedFb += new EventHandler<EventArgs>(entryExitTimer_CountdownTimerStartedFb);
+        }
 
         //Init -------------------------------------------------------
         public void Initialize(ElkPanel _panel, int _area)
         {
             areaNumber = _area;
             myPanel = _panel;
-            entryExitTimer = new StopwatchTimer();
-            entryExitTimer.CountdownFb += new TimerEventHandler(entryExitTimer_CountdownFb);
-            entryExitTimer.CountdownRunningFb += new BoolEventHandler(entryExitTimer_CountdownRunning);
+        }
+
+        private void entryExitTimer_CountdownTimerStartedFb(object sender, EventArgs e)
+        {
+        }
+
+        private void entryExitTimer_TimeRemainingFb(object sender, TimeRemainingEventArgs e)
+        {
+            CrestronConsole.PrintLine("*** Area {0} EntryExitTimer: {1}", areaName, e.TimeRemaining);
+            countdownClock = e.TimeRemaining;
+            OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
         }
 
         //Public Functions -------------------------------------------------------
@@ -243,7 +259,7 @@ namespace ElkAlarm
             if (te != armedStatus)
             {
                 armedStatus = te;
-                if (armedStatus == eAreaArmedStatus.Disarmed) entryExitTimer.Reset();
+                //  if (armedStatus == eAreaArmedStatus.Disarmed) if (entryExitTimer != null) entryExitTimer.Cancel();
                 myPanel.SendDebug(string.Format("Area {0} - internalSetAreaArmedStatus = {1}", areaNumber, armedStatus.ToString()));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ArmedStatusChange);
             }
@@ -293,38 +309,12 @@ namespace ElkAlarm
         {
             if (timer1 > 0 && armedState != 0)
             {
+                entryExitTimer.CountdownSeconds = timer1;
+                entryExitTimer.Start();
                 myPanel.SendDebug(string.Format("Area {0} - internalSetCountdownClock = {1}", areaNumber, timer1));
-
-                entryExitTimer = new StopwatchTimer();
-                entryExitTimer.SetSeconds(timer1);
-                entryExitTimer.StartCountdown();
             }
 
             checkRegistered();
-        }
-
-        private void entryExitTimer_CountdownFb(object sender, TimerEventArgs e)
-        {
-            if (countdownClock != e.seconds)
-            {
-                countdownClock = e.seconds;
-                OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
-                CrestronConsole.PrintLine("{0} - Exit Timer: {1}", areaName, e.seconds);
-            }
-        }
-
-        private void entryExitTimer_CountdownRunning(object sender, BoolEventArgs e)
-        {
-            entryExitTimerIsRunning = e.val == 1 ? true : false;
-
-            showTimer = entryExitTimerIsRunning;
-
-            if (!entryExitTimerIsRunning)
-            {
-                OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
-                myPanel.SendDebug(String.Format("{0} - EntryExit Timer - Running: {1}", areaName, entryExitTimerIsRunning));
-                countdownClock = -1;
-            }
         }
 
         internal void internalZoneAssignmentChanged()

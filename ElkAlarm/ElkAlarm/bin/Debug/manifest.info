@@ -1,4 +1,4 @@
-﻿MainAssembly=ElkAlarm.dll:ab287ad4fda9edfd3542ee5e171a4411
+﻿MainAssembly=ElkAlarm.dll:1e4b8235d11bf05e5a54748a11ae1b18
 MainAssemblyMinFirmwareVersion=1.007.0017
 MainAssemblyResource=SimplSharpData.dat:820b61c48c8a2cace82957eed4cc377c
 MainAssemblyResource=SimplSharpData.dat.der:bf862965c00f3e6ec535e4e00e82d30c
@@ -28,3 +28,7 @@ DependencyMainAssembly=TCPClient.dll:bbfd0b6eb6befeb6524b1ad64f7b7bd9
 DependencySource=WMS.dll:5eccbb381903e07edf81d68fe2f670a5
 DependencyPath=ElkAlarm.clz:WMS.dll
 DependencyMainAssembly=WMS.dll:5eccbb381903e07edf81d68fe2f670a5
+ü
+DependencySource=WMSUtilities.dll:ff89a1c6cf4fa749a3ecb0ac3719d1e8
+DependencyPath=ElkAlarm.clz:WMSUtilities.dll
+DependencyMainAssembly=WMSUtilities.dll:ff89a1c6cf4fa749a3ecb0ac3719d1e8

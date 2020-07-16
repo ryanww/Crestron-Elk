@@ -16,3 +16,4 @@ C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bi
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\SimplSharpReflectionInterface.dll
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\WMS.dll
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\Newtonsoft.Json.Compact.dll
+C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\WMSUtilities.dll

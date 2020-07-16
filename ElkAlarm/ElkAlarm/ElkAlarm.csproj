@@ -67,6 +67,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\WMS.dll</HintPath>
     </Reference>
+    <Reference Include="WMSUtilities, Version=1.0.0.29121, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\WMSUtilities.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ElkOutputSimpl.cs" />
