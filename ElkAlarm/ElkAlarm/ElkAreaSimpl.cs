@@ -24,6 +24,10 @@ namespace ElkAlarm
 
         public NameChange newNameChange { get; set; }
 
+        public delegate void FunctionKeyNameChange(CrestronStringArray names);
+
+        public FunctionKeyNameChange newFunctionKeyNameChange { get; set; }
+
         public delegate void ClockChange(SimplSharpString _clock, ushort _timerRunning);
 
         public ClockChange newClockChange { get; set; }
@@ -76,6 +80,11 @@ namespace ElkAlarm
             myArea.myPw.ClearPassword();
         }
 
+        public void KeypadFunctionPress(string _k)
+        {
+            myArea.KeypadFunctionPress(_k);
+        }
+
         public ushort GetAlarmCountdownClockShow()
         {
             return myArea.GetAlarmCountdownClockShow ? (ushort)1 : (ushort)0;
@@ -96,6 +105,12 @@ namespace ElkAlarm
         public SimplSharpString GetAlarmStatusString()
         {
             return (SimplSharpString)myArea.GetAlarmStatusString;
+        }
+
+        private CrestronStringArray GetFunctionKeyNames()
+        {
+            var functionKeyNames = new CrestronStringArray(myArea.functionKeyNames);
+            return functionKeyNames;
         }
 
         public ushort GetZoneAssignment(ushort _zone)
@@ -134,6 +149,10 @@ namespace ElkAlarm
                 case eElkAreaEventUpdateType.ZoneAssignmentChange:
                     if (newZoneAssignmentChange != null)
                         newZoneAssignmentChange();
+                    break;
+                case eElkAreaEventUpdateType.FunctionKeyNameChange:
+                    if (newFunctionKeyNameChange != null)
+                        newFunctionKeyNameChange(GetFunctionKeyNames());
                     break;
             }
         }

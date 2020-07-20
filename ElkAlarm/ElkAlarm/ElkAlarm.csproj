@@ -63,16 +63,13 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="TCPClient, Version=1.0.0.22405, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="WMS, Version=1.0.0.23898, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\WMS.dll</HintPath>
-    </Reference>
     <Reference Include="WMSUtilities, Version=1.0.0.29121, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\WMSUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CrestronStringArray.cs" />
     <Compile Include="ElkOutputSimpl.cs" />
     <Compile Include="ElkAreaSimpl.cs" />
     <Compile Include="ElkOutput.cs" />

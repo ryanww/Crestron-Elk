@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using countdown;
 using Crestron.SimplSharp;
-using WMS.Utilities;
+
+using WMSUtilities.Timers;
 
 namespace ElkAlarm
 {
@@ -12,6 +12,8 @@ namespace ElkAlarm
     {
         private int areaNumber;
         private string areaName;
+
+        public string[] functionKeyNames = new string[6];
 
         private bool isRegistered;
 
@@ -29,8 +31,10 @@ namespace ElkAlarm
         public ElkArea()
         {
             entryExitTimer = new CountdownTimer();
-            entryExitTimer.TimeRemainingFb += new EventHandler<TimeRemainingEventArgs>(entryExitTimer_TimeRemainingFb);
-            entryExitTimer.CountdownTimerStartedFb += new EventHandler<EventArgs>(entryExitTimer_CountdownTimerStartedFb);
+            entryExitTimer.TimeRemainingFb += entryExitTimer_TimeRemainingFb;
+            entryExitTimer.CountdownTimerStartedFb += entryExitTimer_CountdownTimerStartedFb;
+            entryExitTimer.CountdownTimerFinishedFb += entryExitTimer_CountdownTimerFinishedFb;
+            entryExitTimer.CountdownTimerCancelledFb += entryExitTimer_CountdownTimerCancelledFb;
         }
 
         //Init -------------------------------------------------------
@@ -40,18 +44,15 @@ namespace ElkAlarm
             myPanel = _panel;
         }
 
-        private void entryExitTimer_CountdownTimerStartedFb(object sender, EventArgs e)
-        {
-        }
-
-        private void entryExitTimer_TimeRemainingFb(object sender, TimeRemainingEventArgs e)
-        {
-            CrestronConsole.PrintLine("*** Area {0} EntryExitTimer: {1}", areaName, e.TimeRemaining);
-            countdownClock = e.TimeRemaining;
-            OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
-        }
-
         //Public Functions -------------------------------------------------------
+
+        public void KeypadFunctionPress(string key)
+        {
+            string cmdStr = String.Format("kf{0}{1}00", areaNumber, key);
+            myPanel.SendDebug(string.Format("Area {0} - KeypadFunctionPress = {1} ({2})", areaNumber, key, cmdStr));
+            myPanel.Enqueue(cmdStr);
+        }
+
         public void SetArmLevel(eAreaArmSet arm)
         {
             if (myPw.IsValidCodeEntered())
@@ -259,7 +260,10 @@ namespace ElkAlarm
             if (te != armedStatus)
             {
                 armedStatus = te;
-                //  if (armedStatus == eAreaArmedStatus.Disarmed) if (entryExitTimer != null) entryExitTimer.Cancel();
+                if (armedStatus == eAreaArmedStatus.Disarmed)
+                {
+                    if (entryExitTimer != null) entryExitTimer.Cancel();
+                }
                 myPanel.SendDebug(string.Format("Area {0} - internalSetAreaArmedStatus = {1}", areaNumber, armedStatus.ToString()));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ArmedStatusChange);
             }
@@ -305,6 +309,18 @@ namespace ElkAlarm
             checkRegistered();
         }
 
+        internal void internalSetFunctionKeyName(int keyNumber, string keyName)
+        {
+            myPanel.SendDebug(string.Format("Area {0} - internalSetFunctionKeyName = {1} {2}", areaNumber, keyNumber, keyName));
+            functionKeyNames[keyNumber - 1] = keyName.TrimEnd();
+            //Fire event after 6th key name is returned
+            if (keyNumber == 6)
+            {
+                myPanel.SendDebug(string.Format("Area {0} - internalSetFunctionKeyName - Firing Update to SIMPL", areaNumber));
+                OnElkAreaEvent(eElkAreaEventUpdateType.FunctionKeyNameChange);
+            }
+        }
+
         internal void internalSetCountdownClock(int timerType, int timer1, int timer2, int armedState)
         {
             if (timer1 > 0 && armedState != 0)
@@ -336,7 +352,6 @@ namespace ElkAlarm
                 myPanel.SendDebug(string.Format("Area {0} - checkTimer = {1}", areaNumber, showTimer));
                 OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
             }
-            //TODO: Implement Timer
         }
 
         private void checkRegistered()
@@ -351,6 +366,32 @@ namespace ElkAlarm
         }
 
         //Events -------------------------------------------------------
+
+        private void entryExitTimer_CountdownTimerStartedFb(object sender, EventArgs e)
+        {
+            showTimer = true;
+            OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
+        }
+
+        private void entryExitTimer_CountdownTimerFinishedFb(object sender, EventArgs e)
+        {
+            showTimer = false;
+            OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
+        }
+
+        private void entryExitTimer_CountdownTimerCancelledFb(object sender, EventArgs e)
+        {
+            showTimer = false;
+            OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
+        }
+
+        private void entryExitTimer_TimeRemainingFb(object sender, TimeRemainingEventArgs e)
+        {
+            CrestronConsole.PrintLine("*** Area {0} EntryExitTimer: {1}", areaName, e.TimeRemaining);
+            countdownClock = e.TimeRemaining;
+            OnElkAreaEvent(eElkAreaEventUpdateType.ClockChange);
+        }
+
         public event EventHandler<ElkAreaEventArgs> ElkAreaEvent;
 
         protected virtual void OnElkAreaEvent(eElkAreaEventUpdateType updateType)
@@ -439,6 +480,7 @@ namespace ElkAlarm
         AlarmStateChange = 2,
         NameChange = 3,
         ClockChange = 4,
-        ZoneAssignmentChange = 5
+        ZoneAssignmentChange = 5,
+        FunctionKeyNameChange = 6
     }
 }

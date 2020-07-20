@@ -1,9 +1,10 @@
 #SYMBOL_NAME "Elk Area Driver"
 #PRINT_TO_TRACE
+#ENABLE_TRACE
 #USER_SIMPLSHARP_LIBRARY "ElkAlarm"
 
 Digital_Input _skip_, Disarm, Armed_Away, Armed_Stay, Arm_Stay_Instant, Arm_Night, Arm_Night_Instant, Arm_Vacation, Arm_To_Next_Away_Mode, Arm_To_Next_Stay_Mode, ForceArm_To_Away_Mode, ForceArm_To_Stay_Mode;
-Digital_Input _skip_, KP_0, KP_1, KP_2, KP_3, KP_4, KP_5, KP_6, KP_7, KP_8, KP_9, KP_Backspace, KP_Clear;
+Digital_Input _skip_, KP_0, KP_1, KP_2, KP_3, KP_4, KP_5, KP_6, KP_7, KP_8, KP_9, KP_Backspace, KP_Clear, _skip_, FKey_1, FKey_2, FKey_3, FKey_4, FKey_5, FKey_6, FKey_Silence_Trouble, FKey_Chime;
 
 String_Output _skip_, Area_Name, Armed_Status_Text, Arm_Up_State_Text, Alarm_Status_Text, Countdown_Clock_Text, Password_Text;
 
@@ -17,7 +18,10 @@ Digital_Output Alarm_State_Freeze_Alarm_fb, Alarm_State_Gas_Alarm_fb, Alarm_Stat
 
 Digital_Output _skip_, Zone_Assigned_fb[208, 208];
 
+String_Output _skip_, FKey_Name[6];
+
 ElkAreaSimpl myArea;
+
 
 integer_parameter PanelNumber, AreaNumber;
 
@@ -115,6 +119,46 @@ Push KP_Clear
     myArea.KeypadClear();
 }
 
+Push FKey_1
+{
+    myArea.KeypadFunctionPress("1");
+}
+
+Push FKey_2
+{
+    myArea.KeypadFunctionPress("2");
+}
+
+Push FKey_3
+{
+    myArea.KeypadFunctionPress("3");
+}
+
+Push FKey_4
+{
+    myArea.KeypadFunctionPress("4");
+}
+
+Push FKey_5
+{
+    myArea.KeypadFunctionPress("5");
+}
+
+Push FKey_6
+{
+    myArea.KeypadFunctionPress("6");
+}
+
+Push FKey_Silence_Trouble
+{
+    myArea.KeypadFunctionPress("*");
+}
+
+Push FKey_1
+{
+    myArea.KeypadFunctionPress("C");
+}
+
 Callback Function onArmedStatusChange(integer _as)
 {
     string armedStatusText[254];
@@ -195,6 +239,19 @@ Callback Function onZoneAssignmentChange()
     }
 }
 
+Callback Function onFunctionKeyNameChange(CrestronStringArray names)
+{
+    
+    INTEGER n;
+    trace("***ONFUCNTIONKEYNAMECHANGE*** len %u, %s", names.Length, names.Array[1]);
+    for (n = 1 to names.Length)
+    {
+        if (n > names.Length) break;
+        FKey_Name[n] = names.Array[n - 1];
+    }
+    
+}
+
 Function Main()
 {              
     RegisterDelegate(myArea, newArmedStatusChange, onArmedStatusChange);
@@ -204,5 +261,6 @@ Function Main()
     RegisterDelegate(myArea, newClockChange, onClockChange);
     RegisterDelegate(myArea, newPwChange, onPwChange);
     RegisterDelegate(myArea, newZoneAssignmentChange, onZoneAssignmentChange);
+    RegisterDelegate(myArea, newFunctionKeyNameChange, onFunctionKeyNameChange);
     myArea.Initialize(PanelNumber, AreaNumber);        
 }

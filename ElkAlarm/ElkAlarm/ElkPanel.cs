@@ -115,6 +115,16 @@ namespace ElkAlarm
             this.Enqueue("zp00"); //Zone partition request
             this.Enqueue("zd00"); //Zone definition request
             this.Enqueue("cs00"); //Output status request
+
+            //Function Key Names
+            for (int keypad = 1; keypad <= 16; keypad++)
+            {
+                for (int type = 12; type <= 17; type++)
+                {
+                    this.Enqueue(string.Format("sd{0}{1}", type, keypad.ToString("D3")));
+                }
+            }
+
             this.isInitialized = true;
         }
 
@@ -263,6 +273,13 @@ namespace ElkAlarm
                     {
                         Areas[index].internalSetCountdownClock(timerType, timer1, timer2, armedState);
                     }
+                }
+
+                //Keypad KeyChange Update (key illuminated)
+                if (repType.Contains("KC"))
+                {
+                    data = returnString.Substring(repType.IndexOf("KC"));
+                    SendDebug("Got KC");
                 }
 
                 //All Zone Status (tested)
@@ -449,16 +466,28 @@ namespace ElkAlarm
                         case 11:// = Thermostat Names
                             break;
                         case 12:// = Function Key 1 Name
+                            if (Areas.ContainsKey(itemIndex))
+                                Areas[itemIndex].internalSetFunctionKeyName(1, itemText);
                             break;
                         case 13:// = Function Key 2 Name
+                            if (Areas.ContainsKey(itemIndex))
+                                Areas[itemIndex].internalSetFunctionKeyName(2, itemText);
                             break;
                         case 14:// = Function Key 3 Name
+                            if (Areas.ContainsKey(itemIndex))
+                                Areas[itemIndex].internalSetFunctionKeyName(3, itemText);
                             break;
                         case 15:// = Function Key 4 Name
+                            if (Areas.ContainsKey(itemIndex))
+                                Areas[itemIndex].internalSetFunctionKeyName(4, itemText);
                             break;
                         case 16:// = Function Key 5 Name
+                            if (Areas.ContainsKey(itemIndex))
+                                Areas[itemIndex].internalSetFunctionKeyName(5, itemText);
                             break;
                         case 17:// = Function Key 6 Name
+                            if (Areas.ContainsKey(itemIndex))
+                                Areas[itemIndex].internalSetFunctionKeyName(6, itemText);
                             break;
                         case 18:// = Audio Zone Name
                             break;
