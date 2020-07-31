@@ -193,6 +193,8 @@
   ParamSigType2=Constant
   ParamCue3=AreaNumber
   ParamSigType3=Constant
+  ParamCue4=BypassCode
+  ParamSigType4=String
   MinVariableInputs=34
   MaxVariableInputs=34
   MinVariableInputsList2=0
@@ -201,8 +203,8 @@
   MaxVariableOutputs=247
   MinVariableOutputsList2=9
   MaxVariableOutputsList2=14
-  MinVariableParams=2
-  MaxVariableParams=2
+  MinVariableParams=3
+  MaxVariableParams=3
   Expand=expand_separately
   Expand2=expand_separately
   ProgramTree=Logic
@@ -219,7 +221,8 @@
   Pp1=1
   Pp2=2
   Pp3=3
-  MPp=3
+  Pp4=4
+  MPp=4
   NVStorage=10
   ParamSigType1=String
   SmplCInputCue1=o#
@@ -260,5 +263,13 @@
   NF=63
   NoS=True
   DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  HD=False
+  NoS=False
   VVS=0
 [END]

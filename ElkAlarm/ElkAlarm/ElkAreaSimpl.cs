@@ -59,6 +59,12 @@ namespace ElkAlarm
         }
 
         //Public Functions -------------------------------------------------------
+
+        public void SetBypassPassword(SimplSharpString _pw)
+        {
+            myArea.bypassPassword = _pw.ToString();
+        }
+
         public void SetArmState(ushort _armState)
         {
             eAreaArmSet tas = (eAreaArmSet)Enum.Parse(typeof(eAreaArmSet), Convert.ToString(_armState), true);

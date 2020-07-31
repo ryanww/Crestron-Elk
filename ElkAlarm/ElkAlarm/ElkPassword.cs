@@ -11,7 +11,6 @@ namespace ElkAlarm
         private string pwProtected = "";
         List<int> code = new List<int>();
 
-
         //Public Functions -------------------------------------------------------
         public void AddKeyToPassword(int _key)
         {
@@ -21,11 +20,13 @@ namespace ElkAlarm
                 updateInternal();
             }
         }
+
         public void ClearPassword()
         {
             code.Clear();
             updateInternal();
         }
+
         public void Backspace()
         {
             if (code.Any())
@@ -34,10 +35,12 @@ namespace ElkAlarm
                 updateInternal();
             }
         }
+
         public bool IsValidCodeEntered()
         {
             return code.Count >= 3;
         }
+
         public string getPassword()
         {
             if (!IsValidCodeEntered())
@@ -49,12 +52,12 @@ namespace ElkAlarm
             string p = "";
             foreach (int key in code)
                 p += key.ToString();
-            
+
             ClearPassword();
             return p;
         }
-        public string getPasswordProtected { get { return pwProtected; } }
 
+        public string getPasswordProtected { get { return pwProtected; } }
 
         //Internal -------------------------------------------------------
         private void updateInternal()
@@ -66,13 +69,13 @@ namespace ElkAlarm
         }
 
         public event EventHandler<ElkPasswordEventArgs> ElkPasswordEvent;
+
         protected virtual void OnElkPaswordEvent(string _str)
         {
             if (ElkPasswordEvent != null)
                 ElkPasswordEvent(this, new ElkPasswordEventArgs() { Password = _str });
         }
     }
-
 
     //Events -------------------------------------------------------
     public class ElkPasswordEventArgs : EventArgs

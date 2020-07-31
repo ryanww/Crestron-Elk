@@ -24,6 +24,7 @@ ElkAreaSimpl myArea;
 
 
 integer_parameter PanelNumber, AreaNumber;
+string_parameter BypassCode[16];
 
 Push Disarm
 {
@@ -262,5 +263,6 @@ Function Main()
     RegisterDelegate(myArea, newPwChange, onPwChange);
     RegisterDelegate(myArea, newZoneAssignmentChange, onZoneAssignmentChange);
     RegisterDelegate(myArea, newFunctionKeyNameChange, onFunctionKeyNameChange);
-    myArea.Initialize(PanelNumber, AreaNumber);        
+    myArea.Initialize(PanelNumber, AreaNumber);     
+    myArea.SetBypassPassword(BypassCode);  
 }

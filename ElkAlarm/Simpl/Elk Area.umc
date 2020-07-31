@@ -46,21 +46,6 @@ Mx1=0
 [
 ObjTp=Bw
 H=1
-Lx=0
-Ly=0
-Rx=711
-Ry=985
-Xm=-1
-Ym=-1
-SH=6
-Z=100
-P=1296
-Ht=4
-Hi=90
-]
-[
-ObjTp=Bw
-H=1
 Lx=711
 Ly=0
 Rx=1422
@@ -69,9 +54,22 @@ Xm=-1
 Ym=-1
 SH=7
 Z=100
-P=5394
-Ht=4
-Hi=256
+Ht=3
+Hi=4
+]
+[
+ObjTp=Bw
+H=1
+Lx=0
+Ly=0
+Rx=711
+Ry=985
+Xm=-1
+Ym=-1
+SH=6
+Z=100
+Ht=3
+Hi=3
 ]
 [
 ObjTp=Symbol
@@ -91,7 +89,7 @@ FltTmp=1
 FpCS=0
 NumFixedInputs=302
 NumFixedOutputs=302
-NumFixedParams=2
+NumFixedParams=3
 MinVariableInputs=0
 MinVariableInputsList2=0
 MinVariableInputsList3=0
@@ -496,6 +494,7 @@ OutputSigType301=Digital
 OutputSigType302=Digital|Analog|Serial|String
 ParamSigType1=Constant
 ParamSigType2=Constant
+ParamSigType3=String
 InputCue1=[~UNUSED~]
 InputCue2=[~UNUSED~]
 InputCue3=[~UNUSED~]
@@ -1102,9 +1101,11 @@ OutputCue301=[Zone_Assigned_208_fb]
 OutputCue302=[~EndGroup~]Zone_Assignment
 ParamCue1=Panel Number
 ParamCue2=Area Number
-MPp=2
+ParamCue3=Bypass Passcode
+MPp=3
 Pp1=1
 Pp2=2
+Pp3=3
 FileName=Elk Area.umc
 EncodingType=0
 ZeroOnIoOk=0
@@ -1798,12 +1799,14 @@ O299=281
 O300=282
 O301=283
 O302=284
-mP=2
+mP=3
 P1=Panel Number
 P2=Area Number
-MPp=2
+P3=Bypass Passcode
+MPp=3
 Pp1=1
 Pp2=2
+Pp3=3
 ]
 [
 ObjTp=Sm
@@ -2103,10 +2106,11 @@ O258=298
 O259=299
 O260=300
 O261=301
-mP=3
+mP=4
 P1=
 P2=#Panel Number
 P3=#Area Number
+P4=#Bypass Passcode
 ]
 [
 ObjTp=Sg
@@ -3648,5 +3652,16 @@ DVLF=1
 VVS=1
 LR=1d
 HR=8d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=3
+Tp=1
+HD=TRUE
+DV=""
+NoS=FALSE
+EncFmt=0
+DVLF=1
 Sgn=0
 ]

@@ -12,8 +12,10 @@ namespace ElkAlarm
     {
         private int areaNumber;
         private string areaName;
+        public string bypassPassword;
 
         public string[] functionKeyNames = new string[6];
+        public int[] functionKeyStatus = new int[6];
 
         private bool isRegistered;
 
@@ -321,6 +323,14 @@ namespace ElkAlarm
             }
         }
 
+        internal void internalSetFunctionKeyStatus(string data)
+        {
+            int index = int.Parse(data.Substring(2, 2));
+            int keypressed = int.Parse(data.Substring(4, 2));
+            int array = int.Parse(data.Substring(6, 6));
+            myPanel.SendDebug(string.Format("Area {0} - internalSetFunctionKeyStatus = {1} {2}", areaNumber, keypressed, array));
+        }
+
         internal void internalSetCountdownClock(int timerType, int timer1, int timer2, int armedState)
         {
             if (timer1 > 0 && armedState != 0)
@@ -481,6 +491,7 @@ namespace ElkAlarm
         NameChange = 3,
         ClockChange = 4,
         ZoneAssignmentChange = 5,
-        FunctionKeyNameChange = 6
+        FunctionKeyNameChange = 6,
+        FuncitonKeyStatusChange = 7
     }
 }

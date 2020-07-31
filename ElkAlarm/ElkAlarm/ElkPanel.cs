@@ -115,7 +115,7 @@ namespace ElkAlarm
             this.Enqueue("zp00"); //Zone partition request
             this.Enqueue("zd00"); //Zone definition request
             this.Enqueue("cs00"); //Output status request
-
+            /*
             //Function Key Names
             for (int keypad = 1; keypad <= 16; keypad++)
             {
@@ -124,6 +124,7 @@ namespace ElkAlarm
                     this.Enqueue(string.Format("sd{0}{1}", type, keypad.ToString("D3")));
                 }
             }
+             */
 
             this.isInitialized = true;
         }
@@ -279,6 +280,8 @@ namespace ElkAlarm
                 if (repType.Contains("KC"))
                 {
                     data = returnString.Substring(repType.IndexOf("KC"));
+                    if (Areas.ContainsKey(index))
+                        Areas[index].internalSetFunctionKeyStatus(data);
                     SendDebug("Got KC");
                 }
 
