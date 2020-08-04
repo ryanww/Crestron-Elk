@@ -16,7 +16,11 @@ Digital_Output _skip_, Alarm_State_No_Alarm_Active_fb, Alarm_State_Entrance_Dela
 Digital_Output Alarm_State_Burglar_Alarm_fb, Alarm_State_Aux_1_Alarm_fb, Alarm_State_Aux_2_Alarm_fb, Alarm_State_Aux_3_Alarm_fb, Alarm_State_Aux_4_Alarm_fb, Alarm_State_Carbon_Monoxide_Alarm_fb, Alarm_State_Emergency_Alarm_fb;
 Digital_Output Alarm_State_Freeze_Alarm_fb, Alarm_State_Gas_Alarm_fb, Alarm_State_Heat_Alarm_fb, Alarm_State_Water_Alarm_fb, Alarm_State_Fire_Supervisory_fb, Alarm_State_Verify_Fire_fb;
 
+Digital_Output _SKIP_, FKey_fb[6];
+
 Digital_Output _skip_, Zone_Assigned_fb[208, 208];
+
+
 
 String_Output _skip_, FKey_Name[6];
 
@@ -244,13 +248,29 @@ Callback Function onFunctionKeyNameChange(CrestronStringArray names)
 {
     
     INTEGER n;
-    trace("***ONFUCNTIONKEYNAMECHANGE*** len %u, %s", names.Length, names.Array[1]);
     for (n = 1 to names.Length)
     {
         if (n > names.Length) break;
         FKey_Name[n] = names.Array[n - 1];
     }
     
+}
+
+Callback Function onFunctionKeyStatusChange(integer status[])
+{
+    integer s;
+
+    for(s = 1 to 6)
+    {
+        if(status[s - 1] > 0)
+        {
+            FKey_fb[s] = on;
+        } else
+        {
+            FKey_fb[s] = off;
+        }
+    }
+     
 }
 
 Function Main()
@@ -263,6 +283,8 @@ Function Main()
     RegisterDelegate(myArea, newPwChange, onPwChange);
     RegisterDelegate(myArea, newZoneAssignmentChange, onZoneAssignmentChange);
     RegisterDelegate(myArea, newFunctionKeyNameChange, onFunctionKeyNameChange);
+	RegisterDelegate(myArea, newFunctionKeyStatusChange, onFunctionKeyStatusChange);
+
     myArea.Initialize(PanelNumber, AreaNumber);     
     myArea.SetBypassPassword(BypassCode);  
 }

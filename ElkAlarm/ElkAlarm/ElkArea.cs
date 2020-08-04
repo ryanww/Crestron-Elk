@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
-
 using WMSUtilities.Timers;
 
 namespace ElkAlarm
@@ -15,7 +14,7 @@ namespace ElkAlarm
         public string bypassPassword;
 
         public string[] functionKeyNames = new string[6];
-        public int[] functionKeyStatus = new int[6];
+        public ushort[] functionKeyStatus = new ushort[6];
 
         private bool isRegistered;
 
@@ -50,7 +49,7 @@ namespace ElkAlarm
 
         public void KeypadFunctionPress(string key)
         {
-            string cmdStr = String.Format("kf{0}{1}00", areaNumber, key);
+            string cmdStr = String.Format("kf{0}{1}00", areaNumber.ToString("D2"), key);
             myPanel.SendDebug(string.Format("Area {0} - KeypadFunctionPress = {1} ({2})", areaNumber, key, cmdStr));
             myPanel.Enqueue(cmdStr);
         }
@@ -313,22 +312,28 @@ namespace ElkAlarm
 
         internal void internalSetFunctionKeyName(int keyNumber, string keyName)
         {
+            keyName = keyName.Substring(keyName.IndexOf("=") + 1).Trim();
+            if (functionKeyNames[keyNumber - 1] != keyName)
+            {
+                functionKeyNames[keyNumber - 1] = keyName;
+            }
+
             myPanel.SendDebug(string.Format("Area {0} - internalSetFunctionKeyName = {1} {2}", areaNumber, keyNumber, keyName));
-            functionKeyNames[keyNumber - 1] = keyName.TrimEnd();
+
             //Fire event after 6th key name is returned
             if (keyNumber == 6)
             {
-                myPanel.SendDebug(string.Format("Area {0} - internalSetFunctionKeyName - Firing Update to SIMPL", areaNumber));
                 OnElkAreaEvent(eElkAreaEventUpdateType.FunctionKeyNameChange);
             }
         }
 
         internal void internalSetFunctionKeyStatus(string data)
         {
-            int index = int.Parse(data.Substring(2, 2));
-            int keypressed = int.Parse(data.Substring(4, 2));
-            int array = int.Parse(data.Substring(6, 6));
-            myPanel.SendDebug(string.Format("Area {0} - internalSetFunctionKeyStatus = {1} {2}", areaNumber, keypressed, array));
+            char[] functionKeys = data.Substring(6, 6).ToCharArray();
+            functionKeyStatus = functionKeys.Select(i => ushort.Parse(i.ToString())).ToArray();
+            OnElkAreaEvent(eElkAreaEventUpdateType.FunctionKeyStatusChange);
+
+            myPanel.SendDebug(string.Format("Area {0} - internalSetFunctionKeyStatus", areaNumber));
         }
 
         internal void internalSetCountdownClock(int timerType, int timer1, int timer2, int armedState)
@@ -492,6 +497,6 @@ namespace ElkAlarm
         ClockChange = 4,
         ZoneAssignmentChange = 5,
         FunctionKeyNameChange = 6,
-        FuncitonKeyStatusChange = 7
+        FunctionKeyStatusChange = 7
     }
 }

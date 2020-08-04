@@ -115,7 +115,7 @@ namespace ElkAlarm
             this.Enqueue("zp00"); //Zone partition request
             this.Enqueue("zd00"); //Zone definition request
             this.Enqueue("cs00"); //Output status request
-            /*
+
             //Function Key Names
             for (int keypad = 1; keypad <= 16; keypad++)
             {
@@ -124,7 +124,6 @@ namespace ElkAlarm
                     this.Enqueue(string.Format("sd{0}{1}", type, keypad.ToString("D3")));
                 }
             }
-             */
 
             this.isInitialized = true;
         }
@@ -279,10 +278,18 @@ namespace ElkAlarm
                 //Keypad KeyChange Update (key illuminated)
                 if (repType.Contains("KC"))
                 {
-                    data = returnString.Substring(repType.IndexOf("KC"));
-                    if (Areas.ContainsKey(index))
-                        Areas[index].internalSetFunctionKeyStatus(data);
-                    SendDebug("Got KC");
+                    try
+                    {
+                        data = returnString.Substring(repType.IndexOf("KC"));
+                        index = int.Parse(data.Substring(2, 2));
+                        SendDebug(string.Format("Got KC {0}", index));
+                        if (Areas.ContainsKey(index))
+                            Areas[index].internalSetFunctionKeyStatus(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        SendDebug(String.Format("KC Error: {0} \r\n {1}", ex.Message, ex.InnerException.ToString()));
+                    }
                 }
 
                 //All Zone Status (tested)
@@ -501,7 +508,7 @@ namespace ElkAlarm
             }
             catch (Exception ex)
             {
-                ErrorLog.Error("ELK Parse Error: {0} {1} - {2} ", ex.Message, ex.InnerException, ex.StackTrace);
+                SendDebug(String.Format("*******ELK Parse Error: {0} {1} - {2} RS STRING: {3}*******", ex.Message, ex.InnerException, ex.StackTrace, returnString));
             }
         }
 
@@ -562,8 +569,19 @@ namespace ElkAlarm
 
         public void SendDebug(string msg)
         {
-            if (debug)
-                CrestronConsole.PrintLine(String.Format("Elk Panel {0}: {1}", panelId, msg));
+            try
+            {
+                if (debug)
+                    CrestronConsole.PrintLine(String.Format("Elk Panel {0}: {1}", panelId, msg));
+            }
+            catch (FormatException ex)
+            {
+                CrestronConsole.PrintLine(String.Format("Elk Panel Debug Exception {0}: {1}", panelId, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                CrestronConsole.PrintLine(String.Format("Elk Panel Debug Exception {0}: {1}", panelId, ex.Message));
+            }
         }
 
         public static int hexToInt(char hexChar)

@@ -28,6 +28,10 @@ namespace ElkAlarm
 
         public FunctionKeyNameChange newFunctionKeyNameChange { get; set; }
 
+        public delegate void FunctionKeyStatusChange(ushort[] status);
+
+        public FunctionKeyStatusChange newFunctionKeyStatusChange { get; set; }
+
         public delegate void ClockChange(SimplSharpString _clock, ushort _timerRunning);
 
         public ClockChange newClockChange { get; set; }
@@ -119,6 +123,11 @@ namespace ElkAlarm
             return functionKeyNames;
         }
 
+        private ushort[] GetFunctionKeyStatus()
+        {
+            return myArea.functionKeyStatus;
+        }
+
         public ushort GetZoneAssignment(ushort _zone)
         {
             if (myPanel.Zones.ContainsKey(_zone))
@@ -159,6 +168,10 @@ namespace ElkAlarm
                 case eElkAreaEventUpdateType.FunctionKeyNameChange:
                     if (newFunctionKeyNameChange != null)
                         newFunctionKeyNameChange(GetFunctionKeyNames());
+                    break;
+                case eElkAreaEventUpdateType.FunctionKeyStatusChange:
+                    if (newFunctionKeyStatusChange != null)
+                        newFunctionKeyStatusChange(GetFunctionKeyStatus());
                     break;
             }
         }
