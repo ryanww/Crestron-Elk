@@ -13,8 +13,10 @@ namespace ElkAlarm
         private CrestronQueue<string> responseQueue;
         private CTimer commandQueueTimer;
         private CTimer responseQueueTimer;
+        private CTimer initDoneTimer;
         private TCPClientDevice client;
 
+        private bool initDoneTimerRunning;
         public bool debug;
         private int panelId;
 
@@ -44,6 +46,12 @@ namespace ElkAlarm
         public delegate void ElkPanelInitializedChanged(bool status);
 
         public event ElkPanelInitializedChanged OnElkPanelInitializedChanged;
+
+        //Notification Test
+        public void PropertyToggle(string userDevice, int area, string property)
+        {
+            this.NotificationManager.PropertyToggle(userDevice, area, property);
+        }
 
         //Initialize
         public void Initialize(int _panelId)
@@ -133,7 +141,13 @@ namespace ElkAlarm
             }
 
             this.isInitialized = true;
-            OnElkPanelInitializedChanged(this.isInitialized);
+            initDoneTimer = new CTimer(OnInitDone, Timeout.Infinite);
+        }
+
+        private void OnInitDone(object userspecific)
+        {
+            initDoneTimerRunning = false;
+            if (OnElkPanelInitializedChanged != null) OnElkPanelInitializedChanged(this.isInitialized);
         }
 
         //Comms --------------------------------------------------------------
@@ -456,6 +470,12 @@ namespace ElkAlarm
                         case 0:// = Zone Name
                             if (Zones.ContainsKey(itemIndex))
                                 Zones[itemIndex].internalSetZoneName(itemText);
+                            //Last items to be parse. Set Arbitrary timer to signal initialization is done
+                            if (!initDoneTimerRunning)
+                            {
+                                initDoneTimerRunning = true;
+                                { initDoneTimer.Reset(10000); }
+                            }
                             break;
                         case 1://1 = Area Name
                             if (Areas.ContainsKey(itemIndex))

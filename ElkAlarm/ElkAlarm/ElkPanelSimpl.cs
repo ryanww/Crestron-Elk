@@ -15,9 +15,15 @@ namespace ElkAlarm
 
         public delegate void IsRegistered(ushort value);
         public delegate void IsConnected(ushort value);
+
         public IsRegistered onIsRegistered { get; set; }
+
         public IsConnected onIsConnected { get; set; }
 
+        public void PropertyToggle(string userDevice, int area, string property)
+        {
+            this.myPanel.NotificationManager.PropertyToggle(userDevice, area, property);
+        }
 
         public void Initialize(ushort _panelId, SimplSharpString _host, ushort _port)
         {
@@ -36,7 +42,6 @@ namespace ElkAlarm
             }
         }
 
-
         public void SetDebug(ushort _value)
         {
             this.debug = Convert.ToBoolean(_value);
@@ -44,9 +49,7 @@ namespace ElkAlarm
                 this.myPanel.SetDebug(debug);
         }
 
-
-
-        void ElkPanel_SimplEvent(object sender, SimplEventArgs e)
+        private void ElkPanel_SimplEvent(object sender, SimplEventArgs e)
         {
             switch (e.ID)
             {
@@ -62,6 +65,5 @@ namespace ElkAlarm
                     break;
             }
         }
-
     }
 }

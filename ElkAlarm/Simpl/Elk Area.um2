@@ -54,9 +54,8 @@ Xm=-1
 Ym=-1
 SH=6
 Z=100
-P=1488
-Ht=4
-Hi=73
+Ht=3
+Hi=1
 ]
 [
 ObjTp=Bw
@@ -3671,7 +3670,7 @@ Tp=1
 SD=Panel number
 HD=TRUE
 DV=1d
-NF=1
+NF=9
 DNF=1
 EncFmt=0
 DVLF=1

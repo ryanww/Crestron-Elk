@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="CrestronStringArray.cs" />
     <Compile Include="ElkNotificationManager.cs" />
+    <Compile Include="ElkNotificationManagerSimpl.cs" />
     <Compile Include="ElkOutputSimpl.cs" />
     <Compile Include="ElkAreaSimpl.cs" />
     <Compile Include="ElkOutput.cs" />

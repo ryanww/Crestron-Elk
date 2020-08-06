@@ -21,6 +21,8 @@ Push Initialize
     panel.Initialize(PanelID, host, port);
 }
 
+
+
 Callback Function NewIsRegistered(integer value)
 {
 	if(value = 1)
