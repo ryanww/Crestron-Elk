@@ -1,0 +1,50 @@
+#SYMBOL_NAME "Pushover Manager"
+
+#USER_SIMPLSHARP_LIBRARY "CrestronPushover"
+
+Digital_Input Initialize, test, _SKIP_;
+
+String_Input UserKey[250], ApplicationKey[250];
+
+Digital_Output IsInitialized, _SKIP_, _SKIP_;
+
+String_Output _SKIP_, _SKIP_, _SKIP_, _SKIP_, Device[50, 50];
+
+PushoverManagerSimpl notifications;
+PushoverMessage myMessage;
+
+integer waitTillStart;
+
+Push Initialize
+{                
+	while(!waitTillStart)
+	{}
+	notifications.SetDebug(1);
+	notifications.UserKey = UserKey;
+	notifications.ApplicationKey = ApplicationKey;
+}
+
+
+push test
+{
+	myMessage.SendMessage("bp-iphone", "PushoverTest","Message Body");
+}
+
+Callback Function onDeviceNameChange(CrestronStringArray names)
+{
+    
+    INTEGER n;
+    for (n = 1 to names.Length)
+    {
+        if (n > names.Length) break;
+        Device[n] = names.Array[n - 1];
+    }
+    
+}
+
+Function Main()
+{
+	WaitForInitializationComplete();
+	RegisterDelegate(notifications, newDeviceNameChange, onDeviceNameChange);
+	waitTillStart = 1;
+}

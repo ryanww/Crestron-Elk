@@ -39,11 +39,18 @@ namespace ElkAlarm
         internal Dictionary<int, ElkZone> Zones = new Dictionary<int, ElkZone>();
         internal Dictionary<int, ElkOutput> Outputs = new Dictionary<int, ElkOutput>();
 
+        internal ElkNotificationManager NotificationManager;
+
+        public delegate void ElkPanelInitializedChanged(bool status);
+
+        public event ElkPanelInitializedChanged OnElkPanelInitializedChanged;
+
         //Initialize
         public void Initialize(int _panelId)
         {
             if (this.initRun)
                 return;
+            NotificationManager = new ElkNotificationManager(this);
 
             panelId = _panelId;
 
@@ -126,6 +133,7 @@ namespace ElkAlarm
             }
 
             this.isInitialized = true;
+            OnElkPanelInitializedChanged(this.isInitialized);
         }
 
         //Comms --------------------------------------------------------------
