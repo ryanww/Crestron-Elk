@@ -3,7 +3,7 @@
 #USER_SIMPLSHARP_LIBRARY "ElkAlarm"
 #ENABLE_TRACE
 
-Digital_Input Init;
+Digital_Input Save_Config;
 
 
 Digital_Input _skip_, Armed_State_Disarmed, Armed_State_Armed_Away, Armed_State_Stay, Armed_State_Stay_Instant, Armed_State_Armed_To_Night, Armed_State_Armed_To_Night_Instant, Armed_State_Vacation;
@@ -11,8 +11,8 @@ Digital_Input _skip_, Alarm_State_Entrance_Delay_Active, Alarm_State_Alarm_Abort
 Digital_Input Alarm_State_Burglar_Alarm, Alarm_State_Aux_1_Alarm, Alarm_State_Aux_2_Alarm, Alarm_State_Carbon_Monoxide_Alarm, Alarm_State_Emergency_Alarm;
 Digital_Input Alarm_State_Freeze_Alarm, Alarm_State_Gas_Alarm, Alarm_State_Heat_Alarm, Alarm_State_Water_Alarm, Alarm_State_Fire_Supervisory, Alarm_State_Verify_Fire;
 
-Analog_Input Select_Area;
-String_Input _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Select_Device[254];
+Analog_Input Select_Device, Select_Area;
+String_Input _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Select_Device$[254];
 
 
 Digital_Output _skip_,_SKIP_, Armed_State_Disarmed_fb, Armed_State_Armed_Away_fb, Armed_State_Stay_fb, Armed_State_Stay_Instant_fb, Armed_State_Armed_To_Night_fb, Armed_State_Armed_To_Night_Instant_fb, Armed_State_Vacation_fb;
@@ -23,20 +23,25 @@ String_Output _SKIP_,_SKIP_, _SKIP_, _SKIP_,_SKIP_, _SKIP_, _SKIP_, Selected_Dev
 
 
 integer_parameter PanelNumber;
+String_Parameter Filename[254];
 ElkNotificationManagerSimpl myNotificationManager;
 
 integer waitTillStart, selectedArea;
 string selectedUserDevice[254];
 
 
-push Init
+
+push Save_Config
 {
-myNotificationManager.Initialize(PanelNumber);     
+string file[254];
+
+myNotificationManager.SaveNotificationConfig();     
 }
 
 Change Select_Device
 {
 	myNotificationManager.SelectUserDevice(Select_Device);
+   myNotificationManager.SelectNotificationArea(selectedArea);
 	
 }
 
@@ -149,7 +154,7 @@ Callback Function onNewUserDeviceChange(string deviceName)
 
 eventhandler thisUserDeviceAreaChange(NotificationArea sender, EventArgs args)
 {
-  trace("selected area event handler");
+ 
 Armed_State_Disarmed_fb = sender.Disarmed;
 Armed_State_Armed_Away_fb = sender.ArmedAway;
 Armed_State_Stay_fb = sender.ArmedStay;
@@ -186,7 +191,8 @@ Function Main()
 
 	RegisterDelegate(myNotificationManager, newUserDeviceChange, onNewUserDeviceChange);  
 	RegisterEvent(myNotificationManager, OnUserDeviceAreaChange, thisUserDeviceAreaChange);
-	myNotificationManager.Initialize(PanelNumber);     
+	myNotificationManager.Initialize(PanelNumber);    
+   selectedArea = 1;
 	waitTillStart = 1;
 	
 }

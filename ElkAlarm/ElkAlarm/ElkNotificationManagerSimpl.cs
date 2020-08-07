@@ -31,19 +31,44 @@ namespace ElkAlarm
                 return;
         }
 
-        public void SelectUserDevice(string userDevice)
+        public void SelectUserDevice(ushort userDevice)
         {
-            if (myNotificationManager.notificationDevices.ContainsKey(userDevice))
+            try
             {
-                myNotificationDevice = myNotificationManager.notificationDevices[userDevice];
-                if (newUserDeviceChange != null) newUserDeviceChange(myNotificationDevice.DeviceName);
+                if (userDevice <= myNotificationManager.notificationDevices.Count)
+                {
+                    myNotificationDevice = myNotificationManager.notificationDevices.ElementAt(userDevice).Value;
+                    if (newUserDeviceChange != null) newUserDeviceChange(myNotificationDevice.DeviceName);
+                }
+            }
+            catch (Exception ex)
+            {
+                myPanel.SendDebug(String.Format("Pushover Notification Manager Error Selecting User Device: {0}", ex.ToString()));
             }
         }
 
         public void SelectNotificationArea(uint area)
         {
-            myNotificationArea = myNotificationDevice.NotificationAreas[(int)area];
-            if (OnUserDeviceAreaChange != null) OnUserDeviceAreaChange(myNotificationArea, new EventArgs());
+            if (area == 0) return;
+            try
+            {
+                myNotificationArea = myNotificationDevice.NotificationAreas[(int)area];
+                if (OnUserDeviceAreaChange != null) OnUserDeviceAreaChange(myNotificationArea, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                myPanel.SendDebug(String.Format("Pushover Notification Manager Error Selecting User Device: {0}", ex.ToString()));
+            }
+        }
+
+        public void SaveNotificationConfig()
+        {
+            myNotificationManager.SaveNotificationConfig();
+        }
+
+        public void SetConfigFileName(string path)
+        {
+            myNotificationManager.configFileName = path;
         }
 
         public ushort PropertyToggle(string userDevice, ushort area, string property)

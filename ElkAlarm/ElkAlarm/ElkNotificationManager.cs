@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
+using Crestron.SimplSharp.CrestronIO;
 using Crestron.SimplSharp.Reflection;
 using CrestronPushover;
 using Newtonsoft.Json;
@@ -14,7 +15,14 @@ namespace ElkAlarm
         private ElkPanel myPanel;
         private bool panelInitialized;
         private bool pushoverInitialized;
+        private bool configExists;
+        public string configFileName;
+
         internal Dictionary<string, NotificationDevice> notificationDevices = new Dictionary<string, NotificationDevice>();
+
+        private FileStream _stream;
+        private StreamReader _reader;
+        private StreamWriter _writer;
 
         public ElkNotificationManager(ElkPanel _panel)
         {
@@ -22,44 +30,101 @@ namespace ElkAlarm
             myPanel.OnElkPanelInitializedChanged += myPanel_OnElkPanelInitializedChanged;
             PushoverManager.Instance.OnPushoverInitializedChange += OnPushoverInitializedChange;
             PushoverManager.Instance.PushoverUpdateEvent += Instance_PushoverUpdateEvent;
+            configFileName = String.Format("\\NVRAM\\ElkNotificationCfg-PanelID-{0}.json");
         }
 
         private void OnPushoverInitializedChange(bool status)
         {
             myPanel.SendDebug("*****Pushover Init Event*****");
             pushoverInitialized = status;
-            if (pushoverInitialized && panelInitialized) LoadNotificationConfig();
+            if (pushoverInitialized && panelInitialized) BuildNotificationConfig();
         }
 
-        private void LoadNotificationConfig()
+        private void LoadNotificationConfig(string path)
         {
-            myPanel.SendDebug("*****Loading Notification Config*****");
-            foreach (var device in PushoverManager.Instance.UserDevices)
-            {
-                if (!notificationDevices.ContainsKey(device)) notificationDevices.Add(device, new NotificationDevice(device));
-            }
-
-            foreach (var device in notificationDevices)
-            {
-                foreach (var area in myPanel.Areas)
-                {
-                    if (!myPanel.Areas[area.Key].GetAreaName.Contains("Area"))
-                    {
-                        NotificationArea newArea = new NotificationArea();
-                        newArea.Initialize(myPanel.Areas[area.Key].GetAreaNumber, myPanel.Areas[area.Key].GetAreaName);
-                        notificationDevices[device.Key].NotificationAreas.Add(myPanel.Areas[area.Key].GetAreaNumber, newArea);
-                    }
-                }
-            }
-
-            foreach (var userDevice in this.notificationDevices)
-            {
-            }
-
+            if (string.IsNullOrEmpty(configFileName)) return;
             try
             {
+                FileInfo info = new FileInfo(configFileName);
+                if (info.Exists)
+                {
+                    _stream = new FileStream(configFileName, FileMode.Open);
+                    _reader = new StreamReader(_stream);
+
+                    string text = _reader.ReadToEnd();
+                    _reader.Dispose();
+                    _stream.Dispose();
+
+                    notificationDevices = JsonConvert.DeserializeObject<Dictionary<string, NotificationDevice>>(text);
+                    configExists = true;
+                }
+            }
+            catch (Exception e)
+            {
+                CrestronConsole.PrintLine("Exception Reading Config: {0}", e);
+            }
+        }
+
+        public void SaveNotificationConfig()
+        {
+            if (string.IsNullOrEmpty(configFileName)) return;
+            try
+            {
+                if (notificationDevices != null)
+                {
+                    string serializedConfig = JsonConvert.SerializeObject(notificationDevices);
+                }
+
+                _writer = new StreamWriter(configFileName, false);
+                _writer.Write(notificationDevices);
+                _writer.Dispose();
+                _stream.Dispose();
+            }
+            catch (Exception e)
+            {
+                CrestronConsole.PrintLine("Exception Writing Config: {0}", e);
+            }
+        }
+
+        private void BuildNotificationConfig()
+        {
+            try
+            {
+                if (configExists) myPanel.SendDebug("*****Appending Notification Config. Config Was Already Loaded From Disk*****");
+                myPanel.SendDebug("*****Building Notification Config*****");
+
+                //Add the devices if they don't exist in the dictionary (first run or loaded from config file)
+                foreach (var device in PushoverManager.Instance.UserDevices)
+                {
+                    if (!notificationDevices.ContainsKey(device)) notificationDevices.Add(device, new NotificationDevice(device));
+                }
+
+                foreach (var device in notificationDevices)
+                {
+                    foreach (var area in myPanel.Areas)
+                    {
+                        //Don't write generic area names
+                        if (!myPanel.Areas[area.Key].GetAreaName.Contains("Area"))
+                        {
+                            //add the area to the user device if it doesnt exist
+                            if (
+                                !notificationDevices[device.Key].NotificationAreas.ContainsKey(
+                                    myPanel.Areas[area.Key].GetAreaNumber))
+                            {
+                                NotificationArea newArea = new NotificationArea();
+                                newArea.Initialize(myPanel.Areas[area.Key].GetAreaNumber,
+                                    myPanel.Areas[area.Key].GetAreaName);
+                                notificationDevices[device.Key].NotificationAreas.Add(
+                                    myPanel.Areas[area.Key].GetAreaNumber, newArea);
+                            }
+                        }
+                    }
+                }
+
                 myPanel.SendDebug("*****Serializing Notification Config*****");
                 string json = JsonConvert.SerializeObject(notificationDevices);
+                //this.SaveNotificationConfig();
+
                 CrestronConsole.PrintLine(json);
             }
             catch (Exception ex)
@@ -76,7 +141,7 @@ namespace ElkAlarm
         {
             myPanel.SendDebug("*****Pushover Panel Init Event*****");
             panelInitialized = status;
-            if (pushoverInitialized && panelInitialized) LoadNotificationConfig();
+            if (pushoverInitialized && panelInitialized) BuildNotificationConfig();
         }
 
         public ushort PropertyToggle(string userDevice, int area, string property)
@@ -189,7 +254,7 @@ namespace ElkAlarm
 
         public ushort FireSupervisory { get; set; }
 
-        public ushort VerifyFire;
+        public ushort VerifyFire { get; set; }
     }
 
     public class NotificationZone
