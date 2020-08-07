@@ -6,7 +6,7 @@ using Crestron.SimplSharp;
 
 namespace ElkAlarm
 {
-    public class CrestronStringArray
+    public class ElkCrestronStringArray
     {
         private readonly string[] _array;
 
@@ -15,8 +15,8 @@ namespace ElkAlarm
         public ushort Length { get { return (ushort)_array.Length; } }
 
         [Obsolete("Provided only for S+ compatibility", true)]
-        public CrestronStringArray() { }
+        public ElkCrestronStringArray() { }
 
-        public CrestronStringArray(string[] array) { _array = array; }
+        public ElkCrestronStringArray(string[] array) { _array = array; }
     }
 }

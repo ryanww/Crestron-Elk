@@ -24,7 +24,7 @@ namespace ElkAlarm
 
         public NameChange newNameChange { get; set; }
 
-        public delegate void FunctionKeyNameChange(CrestronStringArray names);
+        public delegate void FunctionKeyNameChange(ElkCrestronStringArray names);
 
         public FunctionKeyNameChange newFunctionKeyNameChange { get; set; }
 
@@ -117,9 +117,9 @@ namespace ElkAlarm
             return (SimplSharpString)myArea.GetAlarmStatusString;
         }
 
-        private CrestronStringArray GetFunctionKeyNames()
+        private ElkCrestronStringArray GetFunctionKeyNames()
         {
-            var functionKeyNames = new CrestronStringArray(myArea.functionKeyNames);
+            var functionKeyNames = new ElkCrestronStringArray(myArea.functionKeyNames);
             return functionKeyNames;
         }
 

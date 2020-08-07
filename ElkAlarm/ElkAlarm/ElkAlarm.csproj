@@ -46,7 +46,7 @@
     <GenerateSerializationAssemblies>off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CrestronPushover, Version=1.0.0.37639, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CrestronPushover, Version=1.0.0.39051, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\wms-dev\pushover\CrestronPushover\bin\Debug\CrestronPushover.dll</HintPath>
     </Reference>
@@ -77,7 +77,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CrestronStringArray.cs" />
+    <Compile Include="ElkCrestronStringArray.cs" />
     <Compile Include="ElkNotificationManager.cs" />
     <Compile Include="ElkNotificationManagerSimpl.cs" />
     <Compile Include="ElkOutputSimpl.cs" />

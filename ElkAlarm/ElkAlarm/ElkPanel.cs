@@ -47,18 +47,12 @@ namespace ElkAlarm
 
         public event ElkPanelInitializedChanged OnElkPanelInitializedChanged;
 
-        //Notification Test
-        public void PropertyToggle(string userDevice, int area, string property)
-        {
-            this.NotificationManager.PropertyToggle(userDevice, area, property);
-        }
-
         //Initialize
         public void Initialize(int _panelId)
         {
             if (this.initRun)
                 return;
-            NotificationManager = new ElkNotificationManager(this);
+            // NotificationManager = new ElkNotificationManager(this);
 
             panelId = _panelId;
 

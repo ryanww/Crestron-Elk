@@ -244,7 +244,7 @@ Callback Function onZoneAssignmentChange()
     }
 }
 
-Callback Function onFunctionKeyNameChange(CrestronStringArray names)
+Callback Function onFunctionKeyNameChange(ElkCrestronStringArray names)
 {
     
     INTEGER n;

@@ -20,11 +20,6 @@ namespace ElkAlarm
 
         public IsConnected onIsConnected { get; set; }
 
-        public void PropertyToggle(string userDevice, int area, string property)
-        {
-            this.myPanel.NotificationManager.PropertyToggle(userDevice, area, property);
-        }
-
         public void Initialize(ushort _panelId, SimplSharpString _host, ushort _port)
         {
             myPanel = ElkCore.AddOrGetCoreObject(_panelId);
