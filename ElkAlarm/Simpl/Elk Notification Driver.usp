@@ -7,8 +7,8 @@ Digital_Input Init;
 
 
 Digital_Input _skip_, Armed_State_Disarmed, Armed_State_Armed_Away, Armed_State_Stay, Armed_State_Stay_Instant, Armed_State_Armed_To_Night, Armed_State_Armed_To_Night_Instant, Armed_State_Vacation;
-Digital_Input _skip_, Alarm_State_No_Alarm_Active, Alarm_State_Entrance_Delay_Active, Alarm_State_Alarm_Abort_Delay_Active, Alarm_State_Fire_Alarm, Alarm_State_Medical_Alarm, Alarm_State_Police_Alarm;
-Digital_Input Alarm_State_Burglar_Alarm, Alarm_State_Aux_1_Alarm, Alarm_State_Aux_2_Alarm, Alarm_State_Aux_3_Alarm, Alarm_State_Aux_4_Alarm, Alarm_State_Carbon_Monoxide_Alarm, Alarm_State_Emergency_Alarm;
+Digital_Input _skip_, Alarm_State_Entrance_Delay_Active, Alarm_State_Alarm_Abort_Delay_Active, Alarm_State_Fire_Alarm, Alarm_State_Medical_Alarm, Alarm_State_Police_Alarm;
+Digital_Input Alarm_State_Burglar_Alarm, Alarm_State_Aux_1_Alarm, Alarm_State_Aux_2_Alarm, Alarm_State_Carbon_Monoxide_Alarm, Alarm_State_Emergency_Alarm;
 Digital_Input Alarm_State_Freeze_Alarm, Alarm_State_Gas_Alarm, Alarm_State_Heat_Alarm, Alarm_State_Water_Alarm, Alarm_State_Fire_Supervisory, Alarm_State_Verify_Fire;
 
 Analog_Input Select_Area;
@@ -16,42 +16,165 @@ String_Input _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Select_Device[254];
 
 
 Digital_Output _skip_,_SKIP_, Armed_State_Disarmed_fb, Armed_State_Armed_Away_fb, Armed_State_Stay_fb, Armed_State_Stay_Instant_fb, Armed_State_Armed_To_Night_fb, Armed_State_Armed_To_Night_Instant_fb, Armed_State_Vacation_fb;
-Digital_Output _skip_, Alarm_State_No_Alarm_Active_fb, Alarm_State_Entrance_Delay_Active_fb, Alarm_State_Alarm_Abort_Delay_Active_fb, Alarm_State_Fire_Alarm_fb, Alarm_State_Medical_Alarm_fb, Alarm_State_Police_Alarm_fb;
-Digital_Output Alarm_State_Burglar_Alarm_fb, Alarm_State_Aux_1_Alarm_fb, Alarm_State_Aux_2_Alarm_fb, Alarm_State_Aux_3_Alarm_fb, Alarm_State_Aux_4_Alarm_fb, Alarm_State_Carbon_Monoxide_Alarm_fb, Alarm_State_Emergency_Alarm_fb;
+Digital_Output _skip_, Alarm_State_Entrance_Delay_Active_fb, Alarm_State_Alarm_Abort_Delay_Active_fb, Alarm_State_Fire_Alarm_fb, Alarm_State_Medical_Alarm_fb, Alarm_State_Police_Alarm_fb;
+Digital_Output Alarm_State_Burglar_Alarm_fb, Alarm_State_Aux_1_Alarm_fb, Alarm_State_Aux_2_Alarm_fb, Alarm_State_Carbon_Monoxide_Alarm_fb, Alarm_State_Emergency_Alarm_fb;
 Digital_Output Alarm_State_Freeze_Alarm_fb, Alarm_State_Gas_Alarm_fb, Alarm_State_Heat_Alarm_fb, Alarm_State_Water_Alarm_fb, Alarm_State_Fire_Supervisory_fb, Alarm_State_Verify_Fire_fb;
 String_Output _SKIP_,_SKIP_, _SKIP_, _SKIP_,_SKIP_, _SKIP_, _SKIP_, Selected_Device;
 
 
 integer_parameter PanelNumber;
-ElkNotificationManagerSimpl myNotifications;
+ElkNotificationManagerSimpl myNotificationManager;
 
-integer waitTillStart;
+integer waitTillStart, selectedArea;
+string selectedUserDevice[254];
 
 
 push Init
 {
-myNotifications.Initialize(PanelNumber);     
+myNotificationManager.Initialize(PanelNumber);     
 }
 
 Change Select_Device
 {
-	myNotifications.SelectUserDevice(Select_Device);
+	myNotificationManager.SelectUserDevice(Select_Device);
+	
 }
 
 Change Select_Area
 {
-	myNotifications.SelectNotificationArea(Select_Area);
+	myNotificationManager.SelectNotificationArea(Select_Area);
+	selectedArea = Select_Area;
+}
+PUSH Armed_State_Disarmed
+{
+   Armed_State_Disarmed_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "Disarmed");
+}
+PUSH Armed_State_Armed_Away
+{
+   Armed_State_Armed_Away_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedAway");
+}
+PUSH Armed_State_Stay
+{
+   Armed_State_Stay_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedStay");
+}
+PUSH Armed_State_Stay_Instant
+{
+   Armed_State_Stay_Instant_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedStayInstant");
+}
+PUSH Armed_State_Armed_To_Night
+{
+   Armed_State_Armed_To_Night_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedToNight");
+}
+PUSH Armed_State_Armed_To_Night_Instant
+{
+   Armed_State_Armed_To_Night_Instant_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedToNightInstant");
+}
+PUSH Armed_State_Vacation
+{
+   Armed_State_Vacation_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedVacation");
+}
+PUSH Alarm_State_Entrance_Delay_Active
+{
+   Alarm_State_Entrance_Delay_Active_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "EntranceDelayActive");
+}
+PUSH Alarm_State_Alarm_Abort_Delay_Active
+{
+   Alarm_State_Alarm_Abort_Delay_Active_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "AlarmAbortDelayActive");
+}
+PUSH Alarm_State_Fire_Alarm
+{
+   Alarm_State_Fire_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "FireAlarm");
+}
+PUSH Alarm_State_Medical_Alarm
+{
+   Alarm_State_Medical_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "MedicalAlarm");
+}
+PUSH Alarm_State_Police_Alarm
+{
+   Alarm_State_Police_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "PoliceAlarm");
+}
+PUSH Alarm_State_Burglar_Alarm
+{
+   Alarm_State_Burglar_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "BurglarAlarm");
+}
+PUSH Alarm_State_Aux_1_Alarm
+{
+   Alarm_State_Aux_1_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "Aux1Alarm");
+}
+PUSH Alarm_State_Aux_2_Alarm
+{
+   Alarm_State_Aux_2_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "Aux2Alarm");
+}
+
+PUSH Alarm_State_Carbon_Monoxide_Alarm
+{
+   Alarm_State_Carbon_Monoxide_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "CarbonMonoxideAlarm");
+}
+PUSH Alarm_State_Emergency_Alarm
+{
+   Alarm_State_Emergency_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "EmergencyAlarm");
+}
+PUSH Alarm_State_Freeze_Alarm
+{
+   Alarm_State_Freeze_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "FreezeAlarm");
+}
+PUSH Alarm_State_Gas_Alarm
+{
+   Alarm_State_Gas_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "GasAlarm");
+}
+PUSH Alarm_State_Heat_Alarm
+{
+   Alarm_State_Heat_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "HeatAlarm");
+}
+PUSH Alarm_State_Water_Alarm
+{
+   Alarm_State_Water_Alarm_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "WaterAlarm");
+}
+PUSH Alarm_State_Fire_Supervisory
+{
+   Alarm_State_Fire_Supervisory_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "FireSupervisory");
+}
+PUSH Alarm_State_Verify_Fire
+{
+   Alarm_State_Verify_Fire_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "VerifyFire");
 }
 
 Callback Function onNewUserDeviceChange(string deviceName)
 {
 	Selected_Device = deviceName;
+	selectedUserDevice = deviceName;
+	
+
 }   
 
 eventhandler thisUserDeviceAreaChange(NotificationArea sender, EventArgs args)
 {
   trace("selected area event handler");
-  Armed_State_Disarmed_fb = sender.Disarmed;
+Armed_State_Disarmed_fb = sender.Disarmed;
+Armed_State_Armed_Away_fb = sender.ArmedAway;
+Armed_State_Stay_fb = sender.ArmedStay;
+Armed_State_Stay_Instant_fb = sender.ArmedStayInstant;
+Armed_State_Armed_To_Night_fb = sender.ArmedToNight;
+Armed_State_Armed_To_Night_Instant_fb = sender.ArmedToNightInstant;
+Armed_State_Vacation_fb = sender.ArmedVacation;
+
+Alarm_State_Entrance_Delay_Active_fb = sender.EntranceDelayActive;
+Alarm_State_Alarm_Abort_Delay_Active_fb = sender.AlarmAbortDelayActive;
+Alarm_State_Fire_Alarm_fb = sender.FireAlarm;
+Alarm_State_Medical_Alarm_fb = sender.MedicalAlarm;
+Alarm_State_Police_Alarm_fb = sender.PoliceAlarm;
+Alarm_State_Burglar_Alarm_fb = sender.BurglarAlarm;
+Alarm_State_Aux_1_Alarm_fb = sender.Aux1Alarm;
+Alarm_State_Aux_2_Alarm_fb = sender.Aux2Alarm;
+
+Alarm_State_Carbon_Monoxide_Alarm_fb = sender.CarbonMonoxideAlarm;
+Alarm_State_Emergency_Alarm_fb = sender.EmergencyAlarm;
+Alarm_State_Freeze_Alarm_fb = sender.FreezeAlarm;
+Alarm_State_Gas_Alarm_fb = sender.GasAlarm;
+Alarm_State_Heat_Alarm_fb = sender.HeatAlarm;
+Alarm_State_Water_Alarm_fb = sender.WaterAlarm;
+Alarm_State_Fire_Supervisory_fb = sender.FireSupervisory;
+Alarm_State_Verify_Fire_fb = sender.VerifyFire;
 }
 
 
@@ -59,8 +182,11 @@ Function Main()
 {
 	
 	WaitForInitializationComplete();
-	RegisterDelegate(myNotifications, newUserDeviceChange, onNewUserDeviceChange);  
-	RegisterEvent(myNotifications, OnUserDeviceAreaChange, thisUserDeviceAreaChange);
+	
+
+	RegisterDelegate(myNotificationManager, newUserDeviceChange, onNewUserDeviceChange);  
+	RegisterEvent(myNotificationManager, OnUserDeviceAreaChange, thisUserDeviceAreaChange);
+	myNotificationManager.Initialize(PanelNumber);     
 	waitTillStart = 1;
 	
 }

@@ -46,9 +46,9 @@ namespace ElkAlarm
             if (OnUserDeviceAreaChange != null) OnUserDeviceAreaChange(myNotificationArea, new EventArgs());
         }
 
-        public void PropertyToggle(string userDevice, ushort area, string property)
+        public ushort PropertyToggle(string userDevice, ushort area, string property)
         {
-            myNotificationManager.PropertyToggle(userDevice, (int)area, property);
+            return myNotificationManager.PropertyToggle(userDevice, (int)area, property);
         }
     }
 }

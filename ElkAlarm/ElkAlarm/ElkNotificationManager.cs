@@ -79,23 +79,27 @@ namespace ElkAlarm
             if (pushoverInitialized && panelInitialized) LoadNotificationConfig();
         }
 
-        public void PropertyToggle(string userDevice, int area, string property)
+        public ushort PropertyToggle(string userDevice, int area, string property)
         {
+            ushort value = 0;
             try
             {
                 PropertyInfo propertyInfo = notificationDevices[userDevice].NotificationAreas[area].GetType().GetCType().GetProperty(property);
-                uint value = (uint)propertyInfo.GetValue(notificationDevices[userDevice].NotificationAreas[area], null);
+                value = (ushort)propertyInfo.GetValue(notificationDevices[userDevice].NotificationAreas[area], null);
 
-                if (value == 0) propertyInfo.SetValue(notificationDevices[userDevice].NotificationAreas[area], (uint)1, null);
-                if (value == 1) propertyInfo.SetValue(notificationDevices[userDevice].NotificationAreas[area], (uint)0, null);
+                if (value == 0) propertyInfo.SetValue(notificationDevices[userDevice].NotificationAreas[area], (ushort)1, null);
+                if (value == 1) propertyInfo.SetValue(notificationDevices[userDevice].NotificationAreas[area], (ushort)0, null);
 
-                value = (uint)propertyInfo.GetValue(notificationDevices[userDevice].NotificationAreas[area], null);
-                myPanel.SendDebug(String.Format("Notification Manager Toggling Property: {0} to {1}", property, Convert.ToBoolean(value)));
+                value = (ushort)propertyInfo.GetValue(notificationDevices[userDevice].NotificationAreas[area], null);
+                myPanel.SendDebug(String.Format("Notification Manager Toggling Property: {0} to {1}", property, value));
+                string json = JsonConvert.SerializeObject(notificationDevices[userDevice].NotificationAreas[area]);
+                CrestronConsole.PrintLine(json);
             }
             catch (Exception ex)
             {
-                myPanel.SendDebug("Notification Manager - Error Toggling Property");
+                myPanel.SendDebug(String.Format("Notification Manager - Error Toggling Property {0}", ex.ToString()));
             }
+            return value;
         }
     }
 
@@ -127,65 +131,65 @@ namespace ElkAlarm
         public string AreaName;
 
         //Global Notifications Per Device
-        public bool AreaNotifications { get; set; }
+        public uint AreaNotifications { get; set; }
 
-        public bool ArmedStatus { get; set; }
+        public uint ArmedStatus { get; set; }
 
-        public bool ArmUpStats { get; set; }
+        public uint ArmUpStats { get; set; }
 
-        public bool ZoneViolated { get; set; }
+        public uint ZoneViolated { get; set; }
 
-        public bool ZoneBypassed { get; set; }
+        public uint ZoneBypassed { get; set; }
 
-        public bool ZoneSoftBypassed { get; set; }
+        public uint ZoneSoftBypassed { get; set; }
 
         //Armed Status
-        public uint Disarmed { get; set; }
+        public ushort Disarmed { get; set; }
 
-        public uint ArmedAway { get; set; }
+        public ushort ArmedAway { get; set; }
 
-        public uint ArmedStay { get; set; }
+        public ushort ArmedStay { get; set; }
 
-        public uint ArmedStayInstant { get; set; }
+        public ushort ArmedStayInstant { get; set; }
 
-        public uint ArmedToNight { get; set; }
+        public ushort ArmedToNight { get; set; }
 
-        public uint ArmedToNightInstant { get; set; }
+        public ushort ArmedToNightInstant { get; set; }
 
-        public uint ArmedVacation { get; set; }
+        public ushort ArmedVacation { get; set; }
 
         //Alarm Status
-        public uint EntranceDelayActive { get; set; }
+        public ushort EntranceDelayActive { get; set; }
 
-        public uint AlarmAbortDelayActive { get; set; }
+        public ushort AlarmAbortDelayActive { get; set; }
 
-        public uint FireAlarm { get; set; }
+        public ushort FireAlarm { get; set; }
 
-        public uint MedicalAlarm { get; set; }
+        public ushort MedicalAlarm { get; set; }
 
-        public uint PoliceAlarm { get; set; }
+        public ushort PoliceAlarm { get; set; }
 
-        public uint BurglarAlarm { get; set; }
+        public ushort BurglarAlarm { get; set; }
 
-        public uint Aux1Alarm { get; set; }
+        public ushort Aux1Alarm { get; set; }
 
-        public uint Aux2Alarm { get; set; }
+        public ushort Aux2Alarm { get; set; }
 
-        public uint CarbonMonoxideAlarm { get; set; }
+        public ushort CarbonMonoxideAlarm { get; set; }
 
-        public uint EmergencyAlarm { get; set; }
+        public ushort EmergencyAlarm { get; set; }
 
-        public uint FreezeAlarm { get; set; }
+        public ushort FreezeAlarm { get; set; }
 
-        public uint GasAlarm { get; set; }
+        public ushort GasAlarm { get; set; }
 
-        public uint HeatAlarm { get; set; }
+        public ushort HeatAlarm { get; set; }
 
-        public uint WaterAlarm { get; set; }
+        public ushort WaterAlarm { get; set; }
 
-        public uint FireSupervisory { get; set; }
+        public ushort FireSupervisory { get; set; }
 
-        public uint VerifyFire;
+        public ushort VerifyFire;
     }
 
     public class NotificationZone
