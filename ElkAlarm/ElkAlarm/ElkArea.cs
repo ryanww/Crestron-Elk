@@ -303,7 +303,7 @@ namespace ElkAlarm
         {
             if (areaName != name)
             {
-                areaName = name.TrimEnd();
+                areaName = name;
                 myPanel.SendDebug(string.Format("Area {0} - internalSetAreaName = {1}", areaNumber, areaName));
                 OnElkAreaEvent(eElkAreaEventUpdateType.NameChange);
             }
