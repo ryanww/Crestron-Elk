@@ -30,14 +30,7 @@ namespace ElkAlarm
             myPanel.OnElkPanelInitializedChanged += myPanel_OnElkPanelInitializedChanged;
             PushoverManager.Instance.OnPushoverInitializedChange += OnPushoverInitializedChange;
             PushoverManager.Instance.PushoverUpdateEvent += Instance_PushoverUpdateEvent;
-            configFileName = String.Format("\\NVRAM\\ElkNotificationCfg-PanelID-{0}.json");
-        }
-
-        private void OnPushoverInitializedChange(bool status)
-        {
-            myPanel.SendDebug("*****Pushover Init Event*****");
-            pushoverInitialized = status;
-            if (pushoverInitialized && panelInitialized) BuildNotificationConfig();
+            configFileName = "\\NVRAM\\ElkNotificationCfg-PanelID-{0}.json";
         }
 
         private void LoadNotificationConfig(string path)
@@ -57,6 +50,10 @@ namespace ElkAlarm
 
                     notificationDevices = JsonConvert.DeserializeObject<Dictionary<string, NotificationDevice>>(text);
                     configExists = true;
+                }
+                else
+                {
+                    BuildNotificationConfig();
                 }
             }
             catch (Exception e)
@@ -131,6 +128,13 @@ namespace ElkAlarm
             {
                 myPanel.SendDebug("*****Error On Loading Notification Config*****");
             }
+        }
+
+        private void OnPushoverInitializedChange(bool status)
+        {
+            myPanel.SendDebug("*****Pushover Init Event*****");
+            pushoverInitialized = status;
+            if (pushoverInitialized && panelInitialized) BuildNotificationConfig();
         }
 
         private void Instance_PushoverUpdateEvent(object sender, PushoverUpdateEventArgs e)

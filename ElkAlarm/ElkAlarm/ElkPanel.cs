@@ -52,7 +52,6 @@ namespace ElkAlarm
         {
             if (this.initRun)
                 return;
-            // NotificationManager = new ElkNotificationManager(this);
 
             panelId = _panelId;
 
@@ -90,7 +89,7 @@ namespace ElkAlarm
             responseQueue = new CrestronQueue<string>();
 
             this.panelId = _panelId;
-
+            NotificationManager = new ElkNotificationManager(this);
             this.initRun = true;
         }
 
@@ -104,10 +103,10 @@ namespace ElkAlarm
                 this.SendDebug(string.Format("Initializing Panel {0} connection @ {1}:{2} & initialize", panelId, panelIp, panelPort));
 
                 if (this.commandQueueTimer == null)
-                    this.commandQueueTimer = new CTimer(CommandQueueDequeue, null, 0, 50);
+                    this.commandQueueTimer = new CTimer(CommandQueueDequeue, null, 0, 100);
 
                 if (this.responseQueueTimer == null)
-                    this.responseQueueTimer = new CTimer(ResponseQueueDequeue, null, 0, 50);
+                    this.responseQueueTimer = new CTimer(ResponseQueueDequeue, null, 0, 100);
 
                 this.client = new TCPClientDevice();
                 this.client.ID = 1;

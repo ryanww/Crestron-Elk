@@ -64,7 +64,7 @@ namespace ElkAlarm
 
         //Public Functions -------------------------------------------------------
 
-        public void SetBypassPassword(SimplSharpString _pw)
+        public void SetBypassPassword(string _pw)
         {
             myArea.bypassPassword = _pw.ToString();
         }
