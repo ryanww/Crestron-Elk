@@ -3,7 +3,7 @@
 #USER_SIMPLSHARP_LIBRARY "ElkAlarm"
 #ENABLE_TRACE
 
-Digital_Input Save_Config;
+Digital_Input Save_Config, Build, Load, _SKIP_, _SKIP_, _SKIP_;
 
 
 Digital_Input _skip_, Armed_State_Disarmed, Armed_State_Armed_Away, Armed_State_Stay, Armed_State_Stay_Instant, Armed_State_Armed_To_Night, Armed_State_Armed_To_Night_Instant, Armed_State_Vacation;
@@ -15,7 +15,7 @@ Analog_Input Select_Device, Select_Area;
 String_Input _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Select_Device$[254];
 
 
-Digital_Output _skip_,_SKIP_, Armed_State_Disarmed_fb, Armed_State_Armed_Away_fb, Armed_State_Stay_fb, Armed_State_Stay_Instant_fb, Armed_State_Armed_To_Night_fb, Armed_State_Armed_To_Night_Instant_fb, Armed_State_Vacation_fb;
+Digital_Output  _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _skip_,_SKIP_, Armed_State_Disarmed_fb, Armed_State_Armed_Away_fb, Armed_State_Stay_fb, Armed_State_Stay_Instant_fb, Armed_State_Armed_To_Night_fb, Armed_State_Armed_To_Night_Instant_fb, Armed_State_Vacation_fb;
 Digital_Output _skip_, Alarm_State_Entrance_Delay_Active_fb, Alarm_State_Alarm_Abort_Delay_Active_fb, Alarm_State_Fire_Alarm_fb, Alarm_State_Medical_Alarm_fb, Alarm_State_Police_Alarm_fb;
 Digital_Output Alarm_State_Burglar_Alarm_fb, Alarm_State_Aux_1_Alarm_fb, Alarm_State_Aux_2_Alarm_fb, Alarm_State_Carbon_Monoxide_Alarm_fb, Alarm_State_Emergency_Alarm_fb;
 Digital_Output Alarm_State_Freeze_Alarm_fb, Alarm_State_Gas_Alarm_fb, Alarm_State_Heat_Alarm_fb, Alarm_State_Water_Alarm_fb, Alarm_State_Fire_Supervisory_fb, Alarm_State_Verify_Fire_fb;
@@ -36,6 +36,16 @@ push Save_Config
 string file[254];
 
 myNotificationManager.SaveNotificationConfig();     
+}
+
+push Build
+{
+   myNotificationManager.Build();
+}
+
+push Load
+{
+   myNotificationManager.Load();
 }
 
 Change Select_Device

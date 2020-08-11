@@ -34,7 +34,7 @@ namespace ElkAlarm
             myPanel.SendDebug(String.Format("Notification Filename is {0}", configFileName));
         }
 
-        private void LoadNotificationConfig()
+        public void LoadNotificationConfig()
         {
             if (string.IsNullOrEmpty(configFileName)) return;
             try
@@ -87,7 +87,7 @@ namespace ElkAlarm
             }
         }
 
-        private void BuildNotificationConfig()
+        public void BuildNotificationConfig()
         {
             try
             {
@@ -96,45 +96,66 @@ namespace ElkAlarm
                     myPanel.SendDebug(
                         "*****Appending Notification Config. Config Was Already Loaded From Disk Comparing to devices from Pushover.net*****");
                 }
-                else
+
+                myPanel.SendDebug("*****No Config was found Building Notification Config*****");
+
+                //Add the devices if they don't exist in the dictionary (first run or loaded from config file)
+                foreach (var pushoverDevice in PushoverManager.Instance.UserDevices)
                 {
-                    myPanel.SendDebug("*****No Config was found Building Notification Config*****");
-
-                    //Add the devices if they don't exist in the dictionary (first run or loaded from config file)
-                    foreach (var device in PushoverManager.Instance.UserDevices)
+                    if (!notificationDevices.ContainsKey(pushoverDevice))
                     {
-                        if (!notificationDevices.ContainsKey(device))
-                            notificationDevices.Add(device, new NotificationDevice(device));
+                        myPanel.SendDebug(String.Format("*****Config Adding Device from Pushover {0}*****", pushoverDevice));
+                        notificationDevices.Add(pushoverDevice, new NotificationDevice(pushoverDevice));
                     }
+                }
 
-                    foreach (var device in notificationDevices)
+                List<string> devicesToRemove = new List<string>();
+                foreach (var deviceToRemove in notificationDevices)
+                {
+                    if (!PushoverManager.Instance.UserDevices.Contains(notificationDevices[deviceToRemove.Key].DeviceName))
                     {
-                        foreach (var area in myPanel.Areas)
+                        string deviceToRemoveString = notificationDevices[deviceToRemove.Key].DeviceName;
+
+                        if (notificationDevices.ContainsKey(deviceToRemoveString))
                         {
-                            //Don't write generic area names
-                            if (!myPanel.Areas[area.Key].GetAreaName.Contains("Area"))
+                            devicesToRemove.Add(deviceToRemoveString);
+                        }
+                    }
+                }
+
+                foreach (var item in devicesToRemove)
+                {
+                    myPanel.SendDebug(String.Format("*****Removing device {0} from config. Device was not found in Pushover devices.*****", item));
+                    notificationDevices.Remove(item);
+                }
+
+                foreach (var device in notificationDevices)
+                {
+                    foreach (var area in myPanel.Areas)
+                    {
+                        //Don't write generic area names
+                        if (!myPanel.Areas[area.Key].GetAreaName.Contains("Area"))
+                        {
+                            //add the area to the user device if it doesnt exist
+                            if (
+                                !notificationDevices[device.Key].NotificationAreas.ContainsKey(
+                                    myPanel.Areas[area.Key].GetAreaNumber))
                             {
-                                //add the area to the user device if it doesnt exist
-                                if (
-                                    !notificationDevices[device.Key].NotificationAreas.ContainsKey(
-                                        myPanel.Areas[area.Key].GetAreaNumber))
-                                {
-                                    NotificationArea newArea = new NotificationArea();
-                                    newArea.Initialize(myPanel.Areas[area.Key].GetAreaNumber,
-                                        myPanel.Areas[area.Key].GetAreaName);
-                                    notificationDevices[device.Key].NotificationAreas.Add(
-                                        myPanel.Areas[area.Key].GetAreaNumber, newArea);
-                                }
+                                NotificationArea newArea = new NotificationArea();
+                                newArea.Initialize(myPanel.Areas[area.Key].GetAreaNumber,
+                                    myPanel.Areas[area.Key].GetAreaName);
+                                notificationDevices[device.Key].NotificationAreas.Add(
+                                    myPanel.Areas[area.Key].GetAreaNumber, newArea);
                             }
                         }
                     }
-
-                    myPanel.SendDebug("*****Serializing Notification Config*****");
-                    string json = JsonConvert.SerializeObject(notificationDevices);
-                    //this.SaveNotificationConfig();
-
-                    CrestronConsole.PrintLine(json);
                 }
+
+                myPanel.SendDebug("*****Serializing Notification Config*****");
+                string json = JsonConvert.SerializeObject(notificationDevices);
+                this.SaveNotificationConfig();
+
+                CrestronConsole.PrintLine(json);
             }
             catch (Exception ex)
             {

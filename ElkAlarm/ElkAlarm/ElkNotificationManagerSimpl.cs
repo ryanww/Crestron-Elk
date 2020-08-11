@@ -31,6 +31,16 @@ namespace ElkAlarm
                 return;
         }
 
+        public void Build()
+        {
+            myNotificationManager.BuildNotificationConfig();
+        }
+
+        public void Load()
+        {
+            myNotificationManager.LoadNotificationConfig();
+        }
+
         public void SelectUserDevice(ushort userDevice)
         {
             try
