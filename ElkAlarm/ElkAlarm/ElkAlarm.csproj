@@ -80,6 +80,7 @@
     <Compile Include="ElkCrestronStringArray.cs" />
     <Compile Include="ElkNotificationManager.cs" />
     <Compile Include="ElkNotificationManagerSimpl.cs" />
+    <Compile Include="ElkNotificationMessageHandler.cs" />
     <Compile Include="ElkOutputSimpl.cs" />
     <Compile Include="ElkAreaSimpl.cs" />
     <Compile Include="ElkOutput.cs" />

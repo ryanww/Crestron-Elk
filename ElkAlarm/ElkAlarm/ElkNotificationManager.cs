@@ -13,6 +13,7 @@ namespace ElkAlarm
     public class ElkNotificationManager
     {
         private ElkPanel myPanel;
+        private ElkNotificationMessageHandler myMessageHandler;
         private bool panelInitialized;
         private bool pushoverInitialized;
         private bool configExists;
@@ -31,7 +32,7 @@ namespace ElkAlarm
             PushoverManager.Instance.OnPushoverInitializedChange += OnPushoverInitializedChange;
             PushoverManager.Instance.PushoverUpdateEvent += Instance_PushoverUpdateEvent;
             configFileName = String.Format("\\NVRAM\\ElkNotificationCfg-PanelID-{0}.json", myPanel.getPanelId);
-            myPanel.SendDebug(String.Format("Notification Filename is {0}", configFileName));
+            myMessageHandler = new ElkNotificationMessageHandler(myPanel, this);
         }
 
         public void LoadNotificationConfig()
@@ -60,9 +61,9 @@ namespace ElkAlarm
                     BuildNotificationConfig();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                CrestronConsole.PrintLine("Exception Reading Config: {0}", e);
+                myPanel.SendDebug(String.Format("Exception Reading Notification Config: {0}", ex.ToString()));
             }
         }
 
@@ -80,10 +81,11 @@ namespace ElkAlarm
                 _writer = new StreamWriter(configFileName, false);
                 _writer.Write(serializedConfig);
                 _writer.Dispose();
+                myPanel.SendDebug(String.Format("Writing Notification Config to Disk:\r\n{0}", serializedConfig));
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                CrestronConsole.PrintLine("Exception Writing Config: {0}", e);
+                myPanel.SendDebug(String.Format("Exception Writing Notification Config: {0}", ex.ToString()));
             }
         }
 
@@ -96,8 +98,10 @@ namespace ElkAlarm
                     myPanel.SendDebug(
                         "*****Appending Notification Config. Config Was Already Loaded From Disk Comparing to devices from Pushover.net*****");
                 }
-
-                myPanel.SendDebug("*****No Config was found Building Notification Config*****");
+                else
+                {
+                    myPanel.SendDebug("*****No Config was found Building Notification Config*****");
+                }
 
                 //Add the devices if they don't exist in the dictionary (first run or loaded from config file)
                 foreach (var pushoverDevice in PushoverManager.Instance.UserDevices)
@@ -109,6 +113,7 @@ namespace ElkAlarm
                     }
                 }
 
+                //Build list of devices that no longer exist in Pushover
                 List<string> devicesToRemove = new List<string>();
                 foreach (var deviceToRemove in notificationDevices)
                 {
@@ -122,7 +127,7 @@ namespace ElkAlarm
                         }
                     }
                 }
-
+                //Remove the devices from the collection that no longer exist
                 foreach (var item in devicesToRemove)
                 {
                     myPanel.SendDebug(String.Format("*****Removing device {0} from config. Device was not found in Pushover devices.*****", item));
