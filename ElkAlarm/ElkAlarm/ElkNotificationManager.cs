@@ -218,8 +218,9 @@ namespace ElkAlarm
         }
 
         public string DeviceName;
-        public bool EnableNotifications;
+
         public Dictionary<int, NotificationArea> NotificationAreas = new Dictionary<int, NotificationArea>();
+        public Dictionary<int, NotificationZone> NotificationZones = new Dictionary<int, NotificationZone>();
     }
 
     public class NotificationArea
@@ -238,65 +239,15 @@ namespace ElkAlarm
         public string AreaName;
 
         //Global Notifications Per Device
-        public uint AreaNotifications { get; set; }
+        public ushort AreaNotifications { get; set; }
 
-        public uint ArmedStatus { get; set; }
+        public ushort ArmedStateChange { get; set; }
 
-        public uint ArmUpStats { get; set; }
+        public ushort AlarmStateChange { get; set; }
 
-        public uint ZoneViolated { get; set; }
+        public ushort ZoneChangeWhenArmed { get; set; }
 
-        public uint ZoneBypassed { get; set; }
-
-        public uint ZoneSoftBypassed { get; set; }
-
-        //Armed Status
-        public ushort Disarmed { get; set; }
-
-        public ushort ArmedAway { get; set; }
-
-        public ushort ArmedStay { get; set; }
-
-        public ushort ArmedStayInstant { get; set; }
-
-        public ushort ArmedToNight { get; set; }
-
-        public ushort ArmedToNightInstant { get; set; }
-
-        public ushort ArmedVacation { get; set; }
-
-        //Alarm Status
-        public ushort EntranceDelayActive { get; set; }
-
-        public ushort AlarmAbortDelayActive { get; set; }
-
-        public ushort FireAlarm { get; set; }
-
-        public ushort MedicalAlarm { get; set; }
-
-        public ushort PoliceAlarm { get; set; }
-
-        public ushort BurglarAlarm { get; set; }
-
-        public ushort Aux1Alarm { get; set; }
-
-        public ushort Aux2Alarm { get; set; }
-
-        public ushort CarbonMonoxideAlarm { get; set; }
-
-        public ushort EmergencyAlarm { get; set; }
-
-        public ushort FreezeAlarm { get; set; }
-
-        public ushort GasAlarm { get; set; }
-
-        public ushort HeatAlarm { get; set; }
-
-        public ushort WaterAlarm { get; set; }
-
-        public ushort FireSupervisory { get; set; }
-
-        public ushort VerifyFire { get; set; }
+        public ushort ZoneChangeWhenDisarmed { get; set; }
     }
 
     public class NotificationZone
@@ -304,5 +255,16 @@ namespace ElkAlarm
         public NotificationZone(int _zone, string _name)
         {
         }
+
+        public void Initialize(int _zone, string _name)
+        {
+        }
+
+        public int ZoneNumber;
+        public string ZoneName;
+
+        public ushort ArmedNotifications { get; set; }
+
+        public ushort DisarmedNotifications { get; set; }
     }
 }

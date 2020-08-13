@@ -46,12 +46,12 @@ Change Select_Area
 
 PUSH Area_Notifications
 {
-   Area_Notifications_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedStateChange");
+   Area_Notifications_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "AreaNotifications");
 }
 
 PUSH Armed_State_Change
 {
-   Armed_State_Change_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "AmredStateChange");
+   Armed_State_Change_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedStateChange");
 }
 
 PUSH Alarm_State_Change
@@ -66,7 +66,7 @@ PUSH Zone_Change_When_Armed
 
 PUSH Zone_Change_When_Disarmed
 {
-   Zone_Change_When_Disarmed_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ZoneChangedWhenDisarmed");
+   Zone_Change_When_Disarmed_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ZoneChangeWhenDisarmed");
 }
 
 

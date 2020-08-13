@@ -37,40 +37,40 @@ namespace ElkAlarm
         private void ElkNotificationMessageHandler_ElkAreaEvent(object sender, ElkAreaEventArgs e)
         {
             myPanel.SendDebug(String.Format("NotificationMessageHandler: Got Area Event - {0} - {1}", e.Area, e.EventUpdateType));
-            myNotificationDevices = myElkNotificationManager.notificationDevices;
+
             ElkArea currentArea = myPanel.GetAreaObject(e.Area);
 
-            foreach (var device in myNotificationDevices)
+            switch (e.EventUpdateType)
             {
-                if (device.Value.NotificationAreas.ContainsKey(e.Area))
-                {
-                    switch (e.EventUpdateType)
-                    {
-                        case eElkAreaEventUpdateType.ArmedStatusChange:
-                            eAreaArmedStatus status = currentArea.GetAreaArmedStatus;
-                            CheckNotificationProperty(device.Value.DeviceName, e.Area, status);
-                            break;
-                    }
-                }
+                case eElkAreaEventUpdateType.ArmedStatusChange:
+                    eAreaArmedStatus status = currentArea.GetAreaArmedStatus;
+                    CheckNotificationProperty(e.Area, status);
+                    break;
             }
         }
 
-        private bool CheckNotificationProperty(string userDevice, int area, eAreaArmedStatus status)
+        private void CheckNotificationProperty(int area, eAreaArmedStatus status)
         {
-            bool isEnabled = false;
-            try
+            myNotificationDevices = myElkNotificationManager.notificationDevices;
+
+            foreach (var userDevice in myNotificationDevices)
             {
-                PropertyInfo propertyInfo =
-                    myNotificationDevices[userDevice].NotificationAreas[area].GetType().GetCType().GetProperty(status.ToString());
-                ushort value = (ushort)propertyInfo.GetValue(myNotificationDevices[userDevice].NotificationAreas[area], null);
-                isEnabled = Convert.ToBoolean(value);
-                if (isEnabled) myPanel.SendDebug(String.Format("NotificationMessageHandler: OK To send message for {0} {1} {2}", userDevice, area, status));
+                if (userDevice.Value.NotificationAreas.ContainsKey(area))
+                {
+                    try
+                    {
+                        PropertyInfo propertyInfo =
+                            myNotificationDevices[userDevice.Key].NotificationAreas[area].GetType().GetCType().GetProperty(status.ToString());
+                        ushort value = (ushort)propertyInfo.GetValue(myNotificationDevices[userDevice.Key].NotificationAreas[area], null);
+                        bool isEnabled = Convert.ToBoolean(value);
+                        if (isEnabled) myPanel.SendDebug(String.Format("NotificationMessageHandler: OK To send message for {0} {1} {2}", userDevice, area, status));
+                    }
+                    catch (Exception ex)
+                    {
+                        myPanel.SendDebug(String.Format("NotificationMessageHandler: Error getting property {0} {1} {2} \r\n{3}", userDevice, area, status, ex.ToString()));
+                    }
+                }
             }
-            catch (Exception ex)
-            {
-                myPanel.SendDebug(String.Format("NotificationMessageHandler: Error getting property {0} {1} {2} \r\n{3}", userDevice, area, status, ex.ToString()));
-            }
-            return isEnabled;
         }
     }
 }
