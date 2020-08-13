@@ -16,6 +16,8 @@ namespace ElkAlarm
         private ElkNotificationMessageHandler myMessageHandler;
         private bool panelInitialized;
         private bool pushoverInitialized;
+        public bool managerReady;
+
         private bool configExists;
         public string configFileName;
 
@@ -142,19 +144,39 @@ namespace ElkAlarm
                         if (!myPanel.Areas[area.Key].GetAreaName.Contains("Area"))
                         {
                             //add the area to the user device if it doesnt exist
+                            int currentArea = myPanel.Areas[area.Key].GetAreaNumber;
                             if (
+
                                 !notificationDevices[device.Key].NotificationAreas.ContainsKey(
-                                    myPanel.Areas[area.Key].GetAreaNumber))
+                                    currentArea))
                             {
                                 NotificationArea newArea = new NotificationArea();
-                                newArea.Initialize(myPanel.Areas[area.Key].GetAreaNumber,
+                                newArea.Initialize(currentArea,
                                     myPanel.Areas[area.Key].GetAreaName);
                                 notificationDevices[device.Key].NotificationAreas.Add(
-                                    myPanel.Areas[area.Key].GetAreaNumber, newArea);
+                                    currentArea, newArea);
+                            }
+                        }
+                    }
+
+                    foreach (var zone in myPanel.Zones)
+                    {
+                        int currentZone = myPanel.Zones[zone.Key].GetZoneNumber;
+                        string currentZoneName = myPanel.Zones[zone.Key].GetZoneName;
+                        if (
+                            !notificationDevices[device.Key].NotificationZones.ContainsKey(
+                                currentZone))
+                        {
+                            if (myPanel.Zones[zone.Key].GetRegistered && currentZoneName.Length > 2)
+                            {
+                                NotificationZone newZone = new NotificationZone();
+                                newZone.Initialize(currentZone, currentZoneName);
+                                notificationDevices[device.Key].NotificationZones.Add(currentZone, newZone);
                             }
                         }
                     }
                 }
+                managerReady = true;
 
                 myPanel.SendDebug("*****Serializing Notification Config*****");
                 string json = JsonConvert.SerializeObject(notificationDevices);
@@ -164,6 +186,7 @@ namespace ElkAlarm
             }
             catch (Exception ex)
             {
+                managerReady = false;
                 myPanel.SendDebug("*****Error On Loading Notification Config*****");
             }
         }
@@ -252,12 +275,14 @@ namespace ElkAlarm
 
     public class NotificationZone
     {
-        public NotificationZone(int _zone, string _name)
+        public NotificationZone()
         {
         }
 
         public void Initialize(int _zone, string _name)
         {
+            ZoneNumber = _zone;
+            ZoneName = _name;
         }
 
         public int ZoneNumber;

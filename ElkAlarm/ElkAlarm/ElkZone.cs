@@ -57,11 +57,15 @@ namespace ElkAlarm
             myPanel.Enqueue(cmdStr);
         }
 
+        public bool GetRegistered { get { return isRegistered; } }
+
         public eZoneStatus GetZoneStatus { get { return zoneStatus; } }
 
         public eZoneType GetZoneType { get { return zoneType; } }
 
         public string GetZoneName { get { return zoneName; } }
+
+        public int GetZoneNumber { get { return zoneNumber; } }
 
         public int GetZoneAreaAssignment { get { return areaAssignment; } }
 

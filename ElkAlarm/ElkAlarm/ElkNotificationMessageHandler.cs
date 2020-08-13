@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
 using Crestron.SimplSharp.Reflection;
+using CrestronPushover;
 
 namespace ElkAlarm
 {
     public class ElkNotificationMessageHandler
     {
         private ElkNotificationManager myElkNotificationManager;
+
         private ElkPanel myPanel;
 
         private Dictionary<string, NotificationDevice> myNotificationDevices =
@@ -36,41 +38,45 @@ namespace ElkAlarm
 
         private void ElkNotificationMessageHandler_ElkAreaEvent(object sender, ElkAreaEventArgs e)
         {
-            myPanel.SendDebug(String.Format("NotificationMessageHandler: Got Area Event - {0} - {1}", e.Area, e.EventUpdateType));
-
+            if (!myElkNotificationManager.managerReady) return;
             ElkArea currentArea = myPanel.GetAreaObject(e.Area);
 
             switch (e.EventUpdateType)
             {
                 case eElkAreaEventUpdateType.ArmedStatusChange:
                     eAreaArmedStatus status = currentArea.GetAreaArmedStatus;
-                    CheckNotificationProperty(e.Area, status);
+                    string areaName = currentArea.GetAreaName.TrimEnd();
+                    string devicesToSend = string.Join(",", CheckNotificationProperty(currentArea, e.EventUpdateType));
+                    PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, status), String.Format("Area {0}", status));
+                    myPanel.SendDebug(String.Format("NotificationMessageHandler: Building Message *{0} - {1} to Devices {2}", areaName, status, devicesToSend));
+
                     break;
             }
         }
 
-        private void CheckNotificationProperty(int area, eAreaArmedStatus status)
+        private string[] CheckNotificationProperty(ElkArea area, eElkAreaEventUpdateType update)
         {
             myNotificationDevices = myElkNotificationManager.notificationDevices;
-
+            List<string> devicesToSend = new List<string>();
             foreach (var userDevice in myNotificationDevices)
             {
-                if (userDevice.Value.NotificationAreas.ContainsKey(area))
+                if (userDevice.Value.NotificationAreas.ContainsKey(area.GetAreaNumber))
                 {
                     try
                     {
-                        PropertyInfo propertyInfo =
-                            myNotificationDevices[userDevice.Key].NotificationAreas[area].GetType().GetCType().GetProperty(status.ToString());
-                        ushort value = (ushort)propertyInfo.GetValue(myNotificationDevices[userDevice.Key].NotificationAreas[area], null);
-                        bool isEnabled = Convert.ToBoolean(value);
-                        if (isEnabled) myPanel.SendDebug(String.Format("NotificationMessageHandler: OK To send message for {0} {1} {2}", userDevice, area, status));
+                        if (update == eElkAreaEventUpdateType.ArmedStatusChange && userDevice.Value.NotificationAreas[area.GetAreaNumber].ArmedStateChange == 1)
+                        {
+                            myPanel.SendDebug(String.Format("NotificationMessageHandler: OK To send message for {0} {1}", userDevice.Value.DeviceName, area));
+                            devicesToSend.Add(userDevice.Value.DeviceName);
+                        }
                     }
                     catch (Exception ex)
                     {
-                        myPanel.SendDebug(String.Format("NotificationMessageHandler: Error getting property {0} {1} {2} \r\n{3}", userDevice, area, status, ex.ToString()));
+                        myPanel.SendDebug(String.Format("NotificationMessageHandler: Error checking property {0} {1} {2} \r\n{3}", userDevice, update, ex.ToString()));
                     }
                 }
             }
+            return devicesToSend.ToArray();
         }
     }
 }
