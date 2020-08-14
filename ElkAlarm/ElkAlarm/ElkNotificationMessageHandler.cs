@@ -18,6 +18,8 @@ namespace ElkAlarm
         private Dictionary<string, NotificationDevice> myNotificationDevices =
             new Dictionary<string, NotificationDevice>();
 
+        public NotificationZone[] myNotificationZoneArray = new NotificationZone[209];
+
         public ElkNotificationMessageHandler(ElkPanel _panel, ElkNotificationManager _manager)
         {
             myElkNotificationManager = _manager;
@@ -33,6 +35,11 @@ namespace ElkAlarm
                 {
                     myPanel.Areas[area.Key].ElkAreaEvent += ElkNotificationMessageHandler_ElkAreaEvent;
                 }
+
+                foreach (var zone in myPanel.Zones)
+                {
+                    myPanel.Zones[zone.Key].ElkZoneEvent += ElkNotificationMessageHandler_ElkZoneEvent;
+                }
             }
         }
 
@@ -46,7 +53,7 @@ namespace ElkAlarm
                 case eElkAreaEventUpdateType.ArmedStatusChange:
                     eAreaArmedStatus status = currentArea.GetAreaArmedStatus;
                     string areaName = currentArea.GetAreaName.TrimEnd();
-                    string devicesToSend = string.Join(",", CheckNotificationProperty(currentArea, e.EventUpdateType));
+                    string devicesToSend = string.Join(",", CheckAreaNotificationProperty(currentArea, e.EventUpdateType));
                     PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, status), String.Format("Area {0}", status));
                     myPanel.SendDebug(String.Format("NotificationMessageHandler: Building Message *{0} - {1} to Devices {2}", areaName, status, devicesToSend));
 
@@ -54,7 +61,25 @@ namespace ElkAlarm
             }
         }
 
-        private string[] CheckNotificationProperty(ElkArea area, eElkAreaEventUpdateType update)
+        private void ElkNotificationMessageHandler_ElkZoneEvent(object sender, ElkZoneEventArgs e)
+        {
+            if (!myElkNotificationManager.managerReady) return;
+            if (e.EventUpdateType == eElkZoneEventUpdateType.StatusChange)
+            {
+                ElkZone currentZone = myPanel.GetZoneObject(e.Zone);
+                ElkArea currentArea = myPanel.GetAreaObject(currentZone.GetZoneAreaAssignment);
+                eAreaArmedStatus areaArmedStatus =
+                    currentArea.GetAreaArmedStatus;
+                string areaName = currentArea.GetAreaName.TrimEnd();
+                string zoneName = currentZone.GetZoneName.TrimEnd();
+                eZoneStatus zoneStatus = currentZone.GetZoneStatus;
+                string devicesToSend = string.Join(",", CheckZoneNotificationProperty(e.Zone, areaArmedStatus));
+                myPanel.SendDebug(String.Format("NotificationMessageHandler: Building Message *{0} - {1}:{2} to Devices {3}", areaName, zoneName, zoneStatus, devicesToSend));
+                PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, zoneName), String.Format("{0}", zoneStatus));
+            }
+        }
+
+        private string[] CheckAreaNotificationProperty(ElkArea area, eElkAreaEventUpdateType update)
         {
             myNotificationDevices = myElkNotificationManager.notificationDevices;
             List<string> devicesToSend = new List<string>();
@@ -72,8 +97,36 @@ namespace ElkAlarm
                     }
                     catch (Exception ex)
                     {
-                        myPanel.SendDebug(String.Format("NotificationMessageHandler: Error checking property {0} {1} {2} \r\n{3}", userDevice, update, ex.ToString()));
+                        myPanel.SendDebug(String.Format("NotificationMessageHandler: Error checking area property {0} {1} {2} \r\n{3}", userDevice, update, ex.ToString()));
                     }
+                }
+            }
+            return devicesToSend.ToArray();
+        }
+
+        private string[] CheckZoneNotificationProperty(int zone, eAreaArmedStatus armedStatus)
+        {
+            myNotificationDevices = myElkNotificationManager.notificationDevices;
+            List<string> devicesToSend = new List<string>();
+            foreach (var userDevice in myNotificationDevices)
+            {
+                try
+                {
+                    if (userDevice.Value.NotificationZones[zone].DisarmedNotifications == 1 &&
+                        armedStatus == eAreaArmedStatus.Disarmed)
+                    {
+                        devicesToSend.Add(userDevice.Value.DeviceName);
+                    }
+
+                    if (userDevice.Value.NotificationZones[zone].DisarmedNotifications == 1 &&
+                        armedStatus > eAreaArmedStatus.Disarmed)
+                    {
+                        devicesToSend.Add(userDevice.Value.DeviceName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    myPanel.SendDebug(String.Format("NotificationMessageHandler: Error checking zone property {0} {1} {2} \r\n{3}", userDevice, zone, ex.ToString()));
                 }
             }
             return devicesToSend.ToArray();

@@ -7,6 +7,7 @@ Digital_Input _SKIP_, _SKIP_, _SKIP_, Save_Config, _SKIP_;
 
 
 Digital_Input _skip_, Area_Notifications, Armed_State_Change, Alarm_State_Change, Zone_Change_When_Armed, Zone_Change_When_Disarmed;
+Digital_Input _SKIP_, _SKIP_,_SKIP_, Zone_ArmedNotifications[208], _SKIP_, Zone_DisarmedNotifications[208, 208];
 
 
 Analog_Input _SKIP_,Select_Device, Select_Area;
@@ -14,8 +15,9 @@ Analog_Input _SKIP_,Select_Device, Select_Area;
 
 
 Digital_Output  _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _skip_, Area_Notifications_fb, Armed_State_Change_fb, Alarm_State_Change_fb, Zone_Change_When_Armed_fb, Zone_Change_When_Disarmed_fb;
+Digital_Output _SKIP_, _SKIP_,_SKIP_, Zone_ArmedNotifications_fb[208], _SKIP_, Zone_DisarmedNotifications_fb[208, 208];
 
-String_Output _SKIP_, Selected_Device;
+String_Output _SKIP_,_SKIP_,_SKIP_,_SKIP_, Selected_Device, Zone_Name[208,208];
 
 
 integer_parameter PanelNumber;
@@ -27,46 +29,60 @@ string selectedUserDevice[254];
 
 
 
-push Save_Config
+threadsafe push Save_Config
 {
-myNotificationManager.SaveNotificationConfig();     
+ myNotificationManager.SaveNotificationConfig();     
 }
 
 
-Change Select_Device
+threadsafe Change Select_Device
 {
 	myNotificationManager.SelectUserDevice(Select_Device);  	
 }
 
-Change Select_Area
+threadsafe Change Select_Area
 {
 	myNotificationManager.SelectNotificationArea(Select_Area);
 	selectedArea = Select_Area;
 }
 
-PUSH Area_Notifications
+threadsafe PUSH Area_Notifications
 {
    Area_Notifications_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "AreaNotifications");
 }
 
-PUSH Armed_State_Change
+threadsafe PUSH Armed_State_Change
 {
    Armed_State_Change_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ArmedStateChange");
 }
 
-PUSH Alarm_State_Change
+threadsafe PUSH Alarm_State_Change
 {
    Alarm_State_Change_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "AlarmStateChange");
 }
 
-PUSH Zone_Change_When_Armed
+threadsafe PUSH Zone_Change_When_Armed
 {
    Zone_Change_When_Armed_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ZoneChangeWhenArmed");
 }
 
-PUSH Zone_Change_When_Disarmed
+threadsafe PUSH Zone_Change_When_Disarmed
 {
    Zone_Change_When_Disarmed_fb = myNotificationManager.PropertyToggle(selectedUserDevice, selectedArea, "ZoneChangeWhenDisarmed");
+}
+    
+threadsafe PUSH Zone_ArmedNotifications
+{
+	integer i;
+	i = getlastmodifiedarrayindex();
+	Zone_ArmedNotifications_fb[i] = myNotificationManager.ToggleZoneProperty(selectedUserDevice, i, "ArmedNotifications");
+}
+
+threadsafe PUSH Zone_DisarmedNotifications
+{
+	integer i;
+	i = getlastmodifiedarrayindex();
+	Zone_DisarmedNotifications_fb[i] = myNotificationManager.ToggleZoneProperty(selectedUserDevice, i, "DisarmedNotifications");
 }
 
 
@@ -78,14 +94,29 @@ Callback Function onNewUserDeviceChange(string deviceName)
 
 eventhandler thisUserDeviceAreaChange(NotificationArea sender, EventArgs args)
 {
- 
+
+integer i;
+integer armed, disarmed;
+
 Area_Notifications_fb = sender.AreaNotifications;
 Armed_State_Change_fb = sender.ArmedStateChange;
 Alarm_State_Change_fb = sender.AlarmStateChange;
 Zone_Change_When_Armed_fb = sender.ZoneChangeWhenArmed;
-Zone_Change_When_Disarmed_fb = sender.ZoneChangeWhenArmed;
+Zone_Change_When_Disarmed_fb = sender.ZoneChangeWhenDisarmed;
+
+for(i = 1 to 208)
+{
+	Zone_Name[i] = myNotificationManager.myNotificationZoneArray[i].ZoneName;
+	Zone_DisarmedNotifications_fb[i]= myNotificationManager.myNotificationZoneArray[i].DisarmedNotifications;
+	Zone_ArmedNotifications_fb[i]= myNotificationManager.myNotificationZoneArray[i].ArmedNotifications;
 
 }
+
+
+}
+
+
+
 
 
 Function Main()

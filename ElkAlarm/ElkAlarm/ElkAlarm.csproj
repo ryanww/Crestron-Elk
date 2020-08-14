@@ -91,6 +91,7 @@
     <Compile Include="ElkPassword.cs" />
     <Compile Include="ElkPanel.cs" />
     <Compile Include="ElkZoneSimpl.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ElkZone.cs" />
     <None Include="Properties\ControlSystem.cfg" />

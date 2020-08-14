@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
 using Crestron.SimplSharp.CrestronIO;
 using Crestron.SimplSharp.Reflection;
 using CrestronPushover;
+using ElkAlarm.Annotations;
 using Newtonsoft.Json;
 
 namespace ElkAlarm
@@ -83,7 +85,7 @@ namespace ElkAlarm
                 _writer = new StreamWriter(configFileName, false);
                 _writer.Write(serializedConfig);
                 _writer.Dispose();
-                myPanel.SendDebug(String.Format("Writing Notification Config to Disk:\r\n{0}", serializedConfig));
+                myPanel.SendDebug("Writing Notification Config to Disk");
             }
             catch (Exception ex)
             {
@@ -164,15 +166,11 @@ namespace ElkAlarm
                         int currentZone = myPanel.Zones[zone.Key].GetZoneNumber;
                         string currentZoneName = myPanel.Zones[zone.Key].GetZoneName;
                         if (
-                            !notificationDevices[device.Key].NotificationZones.ContainsKey(
-                                currentZone))
+                            notificationDevices[device.Key].NotificationZones[currentZone] == null)
                         {
-                            if (myPanel.Zones[zone.Key].GetRegistered && currentZoneName.Length > 2)
-                            {
-                                NotificationZone newZone = new NotificationZone();
-                                newZone.Initialize(currentZone, currentZoneName);
-                                notificationDevices[device.Key].NotificationZones.Add(currentZone, newZone);
-                            }
+                            NotificationZone newZone = new NotificationZone();
+                            newZone.Initialize(currentZone, currentZoneName);
+                            notificationDevices[device.Key].NotificationZones[currentZone] = newZone;
                         }
                     }
                 }
@@ -181,8 +179,6 @@ namespace ElkAlarm
                 myPanel.SendDebug("*****Serializing Notification Config*****");
                 string json = JsonConvert.SerializeObject(notificationDevices);
                 this.SaveNotificationConfig();
-
-                CrestronConsole.PrintLine(json);
             }
             catch (Exception ex)
             {
@@ -243,7 +239,9 @@ namespace ElkAlarm
         public string DeviceName;
 
         public Dictionary<int, NotificationArea> NotificationAreas = new Dictionary<int, NotificationArea>();
-        public Dictionary<int, NotificationZone> NotificationZones = new Dictionary<int, NotificationZone>();
+
+        //public List<NotificationZone> NotificationZones = new List<NotificationZone>();
+        public NotificationZone[] NotificationZones = new NotificationZone[209];
     }
 
     public class NotificationArea

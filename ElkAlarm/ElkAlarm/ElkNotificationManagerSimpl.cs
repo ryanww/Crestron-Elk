@@ -14,10 +14,14 @@ namespace ElkAlarm
 
         public event EventHandler OnUserDeviceAreaChange;
 
+        public event EventHandler OnUserDeviceZoneChange;
+
         private ElkPanel myPanel;
         private NotificationDevice myNotificationDevice;
         private NotificationArea myNotificationArea;
         private ElkNotificationManager myNotificationManager;
+
+        public NotificationZone[] myNotificationZoneArray = new NotificationZone[209];
 
         public ElkNotificationManagerSimpl()
         {
@@ -43,9 +47,10 @@ namespace ElkAlarm
 
         public void SelectUserDevice(ushort userDevice)
         {
+            userDevice = (ushort)(userDevice - 1);
             try
             {
-                if (userDevice <= myNotificationManager.notificationDevices.Count)
+                if (userDevice >= 0 && userDevice <= myNotificationManager.notificationDevices.Count)
                 {
                     myNotificationDevice = myNotificationManager.notificationDevices.ElementAt(userDevice).Value;
                     if (newUserDeviceChange != null) newUserDeviceChange(myNotificationDevice.DeviceName);
@@ -59,16 +64,43 @@ namespace ElkAlarm
 
         public void SelectNotificationArea(uint area)
         {
-            if (area == 0) return;
+            if (!myNotificationDevice.NotificationAreas.ContainsKey((int)area)) return;
             try
             {
                 myNotificationArea = myNotificationDevice.NotificationAreas[(int)area];
+                myNotificationZoneArray = myNotificationDevice.NotificationZones;
+
                 if (OnUserDeviceAreaChange != null) OnUserDeviceAreaChange(myNotificationArea, new EventArgs());
             }
             catch (Exception ex)
             {
                 myPanel.SendDebug(String.Format("Pushover Notification Manager Error Selecting User Device: {0}", ex.ToString()));
             }
+        }
+
+        public ushort ToggleZoneProperty(string userDevice, ushort zone, string property)
+        {
+            ushort newValue = 0;
+            if (myNotificationManager.notificationDevices.ContainsKey(userDevice) && zone <= 209)
+            {
+                switch (property)
+                {
+                    case "ArmedNotifications":
+                        newValue = myNotificationZoneArray[zone].ArmedNotifications = (ushort)(myNotificationZoneArray[zone].ArmedNotifications == 1 ? 0 : 1);
+                        myNotificationManager.notificationDevices[userDevice].NotificationZones[zone].ArmedNotifications
+                            = newValue;
+
+                        break;
+                    case "DisarmedNotifications":
+                        newValue = myNotificationZoneArray[zone].DisarmedNotifications = (ushort)(myNotificationZoneArray[zone].DisarmedNotifications == 1 ? 0 : 1);
+                        myNotificationManager.notificationDevices[userDevice].NotificationZones[zone].DisarmedNotifications
+                            = newValue;
+
+                        break;
+                }
+            }
+
+            return newValue;
         }
 
         public void SaveNotificationConfig()
