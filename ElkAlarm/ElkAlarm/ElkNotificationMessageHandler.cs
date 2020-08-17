@@ -118,7 +118,7 @@ namespace ElkAlarm
                         devicesToSend.Add(userDevice.Value.DeviceName);
                     }
 
-                    if (userDevice.Value.NotificationZones[zone].DisarmedNotifications == 1 &&
+                    if (userDevice.Value.NotificationZones[zone].ArmedNotifications == 1 &&
                         armedStatus > eAreaArmedStatus.Disarmed)
                     {
                         devicesToSend.Add(userDevice.Value.DeviceName);

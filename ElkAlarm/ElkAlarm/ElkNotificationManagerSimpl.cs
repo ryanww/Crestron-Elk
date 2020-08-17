@@ -80,6 +80,7 @@ namespace ElkAlarm
 
         public ushort ToggleZoneProperty(string userDevice, ushort zone, string property)
         {
+            if (String.IsNullOrEmpty(userDevice)) return 0;
             ushort newValue = 0;
             if (myNotificationManager.notificationDevices.ContainsKey(userDevice) && zone <= 209)
             {
@@ -115,6 +116,7 @@ namespace ElkAlarm
 
         public ushort PropertyToggle(string userDevice, ushort area, string property)
         {
+            if (String.IsNullOrEmpty(userDevice)) return 0;
             return myNotificationManager.PropertyToggle(userDevice, (int)area, property);
         }
     }
