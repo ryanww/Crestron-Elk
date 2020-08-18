@@ -1,4 +1,4 @@
-﻿MainAssembly=ElkAlarm.dll:bb843f1b78f1ffd2db2bbee44217efba
+﻿MainAssembly=ElkAlarm.dll:cc7245cd22fcba417a4e21b08809840c
 MainAssemblyMinFirmwareVersion=1.007.0017
 MainAssemblyResource=SimplSharpData.dat:820b61c48c8a2cace82957eed4cc377c
 MainAssemblyResource=SimplSharpData.dat.der:bf862965c00f3e6ec535e4e00e82d30c
@@ -12,6 +12,10 @@ DependencyMainAssembly=CrestronPushover.dll:d22c38611743fd79c82b4ace6f62fc1c
 DependencySource=Newtonsoft.Json.Compact.dll:66d4c8a51da9d0c73cefdb9711863f70
 DependencyPath=ElkAlarm.clz:Newtonsoft.Json.Compact.dll
 DependencyMainAssembly=Newtonsoft.Json.Compact.dll:66d4c8a51da9d0c73cefdb9711863f70
+ü
+DependencySource=PepperDash_Core.dll:c26999e44017dc58887bb8c8e8b59c78
+DependencyPath=ElkAlarm.clz:PepperDash_Core.dll
+DependencyMainAssembly=PepperDash_Core.dll:c26999e44017dc58887bb8c8e8b59c78
 ü
 DependencySource=SimplSharpCustomAttributesInterface.dll:9c4b4d4c519b655af90016edca2d66b9
 DependencyPath=ElkAlarm.clz:SimplSharpCustomAttributesInterface.dll

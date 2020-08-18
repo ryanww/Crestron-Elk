@@ -19,3 +19,4 @@ C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bi
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\SimplSharpNewtonsoft.dll
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\SimplSharpSQLHelperInterface.dll
 C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\CrestronPushover.dll
+C:\Users\bpeairs\git\git-wms\modules-libraries\Crestron-Elk\ElkAlarm\ElkAlarm\bin\Debug\PepperDash_Core.dll

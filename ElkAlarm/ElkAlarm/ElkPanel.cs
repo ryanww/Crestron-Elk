@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Crestron.SimplSharp;
+using Crestron.SimplSharp.CrestronSockets;
 using PepperDash.Core;
 using WMSUtilities.Net;
 
@@ -14,8 +15,8 @@ namespace ElkAlarm
         private CTimer commandQueueTimer;
         private CTimer responseQueueTimer;
         private CTimer initDoneTimer;
-        private TCPClientDevice client;
-        private PepperDash.Core.GenericTcpIpClient tcpClient;
+
+        private GenericTcpIpClient tcpClient;
 
         private bool initDoneTimerRunning;
         public bool debug;
@@ -103,20 +104,74 @@ namespace ElkAlarm
             {
                 this.SendDebug(string.Format("Initializing Panel {0} connection @ {1}:{2} & initialize", panelId, panelIp, panelPort));
 
-                if (this.commandQueueTimer == null)
-                    this.commandQueueTimer = new CTimer(CommandQueueDequeue, null, 0, 100);
+                this.tcpClient = new GenericTcpIpClient("elk", this.panelIp, this.panelPort, 2000);
+
+                this.tcpClient.TextReceived += TcpClientOnTextReceived;
+                this.tcpClient.ConnectionChange += tcpClient_ConnectionChange;
+                this.tcpClient.AutoReconnect = true;
+                this.tcpClient.Connect();
+            }
+        }
+
+        private void tcpClient_ConnectionChange(object sender, GenericSocketStatusChageEventArgs e)
+        {
+            if (e.Client.IsConnected)
+            {
+                this.isConnected = true;
+                foreach (var item in SimplClients)
+                {
+                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsConnected, "true", 1));
+                }
+
+                foreach (var item in SimplClients)
+                {
+                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsRegistered, "true", 1));
+                }
 
                 if (this.responseQueueTimer == null)
+                {
                     this.responseQueueTimer = new CTimer(ResponseQueueDequeue, null, 0, 100);
+                }
+                else
+                {
+                    responseQueueTimer.Reset(0, 100);
+                }
 
-                this.client = new TCPClientDevice();
-                this.client.ID = 1;
-                this.client.EnableReconnect = true;
-                this.client.ConnectionStatus += new TCPClientDevice.StatusEventHandler(client_ConnectionStatus);
-                this.client.ResponseString += new TCPClientDevice.ResponseEventHandler(client_ResponseString);
-                this.client.OnReconnectEvent += client_ReconnectAttempt;
-                this.client.Connect(this.panelIp, (ushort)this.panelPort);
+                if (this.commandQueueTimer == null)
+                {
+                    this.commandQueueTimer = new CTimer(CommandQueueDequeue, null, 0, 100);
+                }
+                else
+                {
+                    commandQueueTimer.Reset(0, 100);
+                }
+
+                this.InitializePanelParameters();
             }
+            else if (!e.Client.IsConnected)
+            {
+                this.SendDebug("Elk Disconnected");
+                this.isConnected = false;
+
+                this.commandQueueTimer.Stop();
+
+                this.commandQueue.Clear();
+
+                this.responseQueueTimer.Stop();
+
+                this.responseQueue.Clear();
+
+                foreach (var item in SimplClients)
+                {
+                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsRegistered, "false", 0));
+                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsConnected, "false", 0));
+                }
+            }
+        }
+
+        private void TcpClientOnTextReceived(object sender, GenericCommMethodReceiveTextArgs genericCommMethodReceiveTextArgs)
+        {
+            ParseResponse(genericCommMethodReceiveTextArgs.Text);
         }
 
         public void InitializePanelParameters()
@@ -154,7 +209,7 @@ namespace ElkAlarm
                 var data = commandQueue.Dequeue();
                 data = generateChecksumString(data);
                 //SendDebug(string.Format("Elk - Sending from queue: {0}", data));
-                client.SendCommand(data + "\x0D\x0A");
+                this.tcpClient.SendText(data + "\x0D\x0A");
             }
         }
 
