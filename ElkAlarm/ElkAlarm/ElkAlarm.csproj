@@ -51,6 +51,10 @@
       <HintPath>..\..\..\..\wms-dev\pushover\CrestronPushover\bin\Debug\CrestronPushover.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="PepperDash_Core, Version=1.0.41.31808, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\pepperdash\release\Pepperdash.Core-1.0.41\output\PepperDash_Core.dll</HintPath>
+    </Reference>
     <Reference Include="SimplSharpCustomAttributesInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpCustomAttributesInterface.dll</HintPath>
@@ -70,10 +74,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="TCPClient, Version=1.0.0.22405, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="WMSUtilities, Version=1.0.0.29121, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="WMSUtilities, Version=1.0.0.26120, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\WMSUtilities.dll</HintPath>
+      <HintPath>..\..\..\..\wms-dev\wms-sharp-utilities\WMSUtilities\bin\Release\WMSUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

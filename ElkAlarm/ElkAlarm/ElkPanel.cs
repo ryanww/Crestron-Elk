@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Crestron.SimplSharp;
-using Crestron.SimplSharp.CrestronIO;
-using TCP_Client;
+using PepperDash.Core;
+using WMSUtilities.Net;
 
 namespace ElkAlarm
 {
@@ -15,6 +15,7 @@ namespace ElkAlarm
         private CTimer responseQueueTimer;
         private CTimer initDoneTimer;
         private TCPClientDevice client;
+        private PepperDash.Core.GenericTcpIpClient tcpClient;
 
         private bool initDoneTimerRunning;
         public bool debug;
@@ -110,8 +111,10 @@ namespace ElkAlarm
 
                 this.client = new TCPClientDevice();
                 this.client.ID = 1;
-                this.client.ConnectionStatus += new StatusEventHandler(client_ConnectionStatus);
-                this.client.ResponseString += new ResponseEventHandler(client_ResponseString);
+                this.client.EnableReconnect = true;
+                this.client.ConnectionStatus += new TCPClientDevice.StatusEventHandler(client_ConnectionStatus);
+                this.client.ResponseString += new TCPClientDevice.ResponseEventHandler(client_ResponseString);
+                this.client.OnReconnectEvent += client_ReconnectAttempt;
                 this.client.Connect(this.panelIp, (ushort)this.panelPort);
             }
         }
@@ -237,12 +240,17 @@ namespace ElkAlarm
             {
                 this.SendDebug("Elk Disconnected");
                 this.isConnected = false;
-                //foreach (var item in SimplClients)
-                //{
-                //    //item.Value.Fire(new SimplEventArgs(eQscSimplEventIds.IsRegistered, "false", 0));
-                //    //item.Value.Fire(new SimplEventArgs(eQscSimplEventIds.IsConnected, "false", 0));
-                //}
+                foreach (var item in SimplClients)
+                {
+                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsRegistered, "false", 0));
+                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsConnected, "false", 0));
+                }
             }
+        }
+
+        private void client_ReconnectAttempt(object sender, EventArgs e)
+        {
+            this.SendDebug("Connection was lost. Attempting reconnect.");
         }
 
         private string generateChecksumString(string s)
