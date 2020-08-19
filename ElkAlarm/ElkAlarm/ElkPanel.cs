@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Crestron.SimplSharp;
-using Crestron.SimplSharp.CrestronSockets;
 using PepperDash.Core;
-using WMSUtilities.Net;
 
 namespace ElkAlarm
 {
@@ -269,45 +267,6 @@ namespace ElkAlarm
             }
         }
 
-        private void client_ResponseString(string response, int id)
-        {
-            ParseResponse(response);
-        }
-
-        private void client_ConnectionStatus(int status, int id)
-        {
-            if (status == 2 && !isConnected)
-            {
-                this.isConnected = true;
-                foreach (var item in SimplClients)
-                {
-                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsConnected, "true", 1));
-                }
-                CrestronEnvironment.Sleep(1500);
-
-                foreach (var item in SimplClients)
-                {
-                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsRegistered, "true", 1));
-                }
-                this.InitializePanelParameters();
-            }
-            else if (isConnected && status != 2)
-            {
-                this.SendDebug("Elk Disconnected");
-                this.isConnected = false;
-                foreach (var item in SimplClients)
-                {
-                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsRegistered, "false", 0));
-                    item.Value.Fire(new SimplEventArgs(eElkSimplEventIds.IsConnected, "false", 0));
-                }
-            }
-        }
-
-        private void client_ReconnectAttempt(object sender, EventArgs e)
-        {
-            this.SendDebug("Connection was lost. Attempting reconnect.");
-        }
-
         private string generateChecksumString(string s)
         {
             s = String.Format("{0:X2}{1}", s.Length + 2, s);
@@ -407,6 +366,7 @@ namespace ElkAlarm
                 //Zone Bypass (tested)
                 if (repType.Contains("ZB"))
                 {
+                    /*
                     data = returnString.Substring(repType.IndexOf("ZB"));
                     SendDebug("Got ZB");
                     index = int.Parse(data.Substring(2, 3));
@@ -415,6 +375,7 @@ namespace ElkAlarm
                             Zones[index].internalSetBypass(true);
                         else
                             Zones[index].internalSetBypass(false);
+                     */
                 }
 
                 //Zone Voltage (tested)

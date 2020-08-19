@@ -14,13 +14,16 @@ namespace ElkAlarm
 {
     public class ElkNotificationManager
     {
+        public event EventHandler OnNotificationManagerReady;
+
         private ElkPanel myPanel;
         private ElkNotificationMessageHandler myMessageHandler;
+
         private bool panelInitialized;
         private bool pushoverInitialized;
         public bool managerReady;
-
         private bool configExists;
+
         public string configFileName;
 
         internal Dictionary<string, NotificationDevice> notificationDevices = new Dictionary<string, NotificationDevice>();
@@ -179,6 +182,7 @@ namespace ElkAlarm
                 myPanel.SendDebug("*****Serializing Notification Config*****");
                 string json = JsonConvert.SerializeObject(notificationDevices);
                 this.SaveNotificationConfig();
+                if (OnNotificationManagerReady != null) OnNotificationManagerReady(null, new EventArgs());
             }
             catch (Exception ex)
             {

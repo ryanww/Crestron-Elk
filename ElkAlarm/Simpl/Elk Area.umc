@@ -54,9 +54,8 @@ Xm=-1
 Ym=-1
 SH=6
 Z=100
-P=1800
-Ht=4
-Hi=100
+Ht=3
+Hi=1
 ]
 [
 ObjTp=Bw

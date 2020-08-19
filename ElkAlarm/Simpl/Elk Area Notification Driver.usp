@@ -11,13 +11,13 @@ Digital_Input _SKIP_, _SKIP_,_SKIP_, Zone_ArmedNotifications[208], _SKIP_, Zone_
 
 
 Analog_Input _SKIP_,Select_Device, Select_Area;
-
+String_Input Select_Device$[254];
 
 
 Digital_Output  _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _skip_, Area_Notifications_fb, Armed_State_Change_fb, Alarm_State_Change_fb, Zone_Change_When_Armed_fb, Zone_Change_When_Disarmed_fb;
 Digital_Output _SKIP_, _SKIP_,_SKIP_, Zone_ArmedNotifications_fb[208], _SKIP_, Zone_DisarmedNotifications_fb[208, 208];
-
-String_Output _SKIP_,_SKIP_,_SKIP_,_SKIP_, Selected_Device, Zone_Name[208,208];
+Analog_Output _SKIP_, Selected_Device;
+String_Output _SKIP_,_SKIP_,_SKIP_, Selected_Device$, Zone_Name[208,208];
 
 
 integer_parameter PanelNumber;
@@ -37,7 +37,8 @@ threadsafe push Save_Config
 
 threadsafe Change Select_Device
 {
-	myNotificationManager.SelectUserDevice(Select_Device);  	
+	myNotificationManager.SelectUserDevice(Select_Device);  
+	Selected_Device = Select_Device;	
 }
 
 threadsafe Change Select_Area
@@ -88,7 +89,7 @@ threadsafe PUSH Zone_DisarmedNotifications
 
 Callback Function onNewUserDeviceChange(string deviceName)
 {
-	Selected_Device = deviceName;
+	Selected_Device$ = deviceName;
 	selectedUserDevice = deviceName;
 }   
 
@@ -105,17 +106,21 @@ Zone_Change_When_Armed_fb = sender.ZoneChangeWhenArmed;
 Zone_Change_When_Disarmed_fb = sender.ZoneChangeWhenDisarmed;
 
 for(i = 1 to 208)
-{
+	{
 	Zone_Name[i] = myNotificationManager.myNotificationZoneArray[i].ZoneName;
 	Zone_DisarmedNotifications_fb[i]= myNotificationManager.myNotificationZoneArray[i].DisarmedNotifications;
 	Zone_ArmedNotifications_fb[i]= myNotificationManager.myNotificationZoneArray[i].ArmedNotifications;
 
+	}
 }
 
 
+callback function onNotificationManagerSimpleReady()
+{
+	selectedArea = 1;
+	myNotificationManager.SelectUserDevice(selectedArea);  
+	Selected_Device = selectedArea;		
 }
-
-
 
 
 
@@ -127,8 +132,9 @@ Function Main()
 
 	RegisterDelegate(myNotificationManager, newUserDeviceChange, onNewUserDeviceChange);  
 	RegisterEvent(myNotificationManager, OnUserDeviceAreaChange, thisUserDeviceAreaChange);
+	RegisterDelegate(myNotificationManager, newNotificationManagerSimplReady, onNotificationManagerSimpleReady);
 	myNotificationManager.Initialize(PanelNumber);    
-   selectedArea = 1;
+    selectedArea = 1;
 	waitTillStart = 1;
 	
 }

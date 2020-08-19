@@ -16,6 +16,10 @@ namespace ElkAlarm
 
         public event EventHandler OnUserDeviceZoneChange;
 
+        public delegate void OnNotificationManagerSimpleReady();
+
+        public OnNotificationManagerSimpleReady newNotificationManagerSimplReady { get; set; }
+
         private ElkPanel myPanel;
         private NotificationDevice myNotificationDevice;
         private NotificationArea myNotificationArea;
@@ -31,8 +35,14 @@ namespace ElkAlarm
         {
             myPanel = ElkCore.AddOrGetCoreObject(_panel);
             myNotificationManager = myPanel.NotificationManager;
+            myNotificationManager.OnNotificationManagerReady += myNotificationManager_OnNotificationManagerReady;
             if (myPanel == null)
                 return;
+        }
+
+        private void myNotificationManager_OnNotificationManagerReady(object sender, EventArgs e)
+        {
+            if (newNotificationManagerSimplReady != null) newNotificationManagerSimplReady();
         }
 
         public void Build()

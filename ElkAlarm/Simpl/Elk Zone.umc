@@ -4,7 +4,7 @@ Version=1
 [
 ObjTp=FSgntr
 Sgntr=UserMacro
-RelVrs=4.11.06
+RelVrs=4.14.20
 IntStrVrs=2
 MinSMWVrs=3.00.00
 MinTIOVrs=0
@@ -16,14 +16,14 @@ S0Nd=1
 S1Nd=2
 SLNd=3
 PrNm=Elk Zone.umc
-DbVr=85.00.001.00
-DvcDbVr=111.00.001.00
+DbVr=200.00.002.00
+DvcDbVr=200.00.012.00
 PgmNm=Ryan Wilkinson
 DlrNm=WMS
 Incl=1766,2574,2651,2817,2886,2938,2947,3181,3197,3233,3710,3735,3736,3816,3888,4176,4308,4476,4591,4769,5360,5388,5420,5455,5497,5699,5813,5919,6150,6161,
 McNm=Elk Zone
-SmVr=1099
-DvVr=1099
+SmVr=1110
+DvVr=1110
 TpN1=1
 TpN2=2
 TpN3=3
@@ -42,6 +42,20 @@ Nm1=\
 Sx1=0
 Sy1=0
 Mx1=0
+]
+[
+ObjTp=Bw
+H=1
+Lx=0
+Ly=0
+Rx=2413
+Ry=1113
+Xm=-1
+Ym=-1
+SH=6
+Z=100
+Ht=3
+Hi=1
 ]
 [
 ObjTp=Symbol
@@ -966,7 +980,7 @@ Tp=1
 SD=Panel number
 HD=TRUE
 DV=1d
-NF=1
+NF=9
 DNF=1
 EncFmt=0
 DVLF=1
