@@ -54,9 +54,14 @@ namespace ElkAlarm
                     eAreaArmedStatus status = currentArea.GetAreaArmedStatus;
                     string areaName = currentArea.GetAreaName.TrimEnd();
                     string devicesToSend = string.Join(",", CheckAreaNotificationProperty(currentArea, e.EventUpdateType));
-                    PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, status), String.Format("Area {0}", status));
-                    myPanel.SendDebug(String.Format("NotificationMessageHandler: Building Message *{0} - {1} to Devices {2}", areaName, status, devicesToSend));
-
+                    if (devicesToSend.Length > 0 && !String.IsNullOrEmpty(devicesToSend))
+                    {
+                        PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, status),
+                            String.Format("Area {0}", status));
+                        myPanel.SendDebug(
+                            String.Format("NotificationMessageHandler: Building Message *{0} - {1} to Devices {2}",
+                                areaName, status, devicesToSend));
+                    }
                     break;
             }
         }
@@ -74,8 +79,14 @@ namespace ElkAlarm
                 string zoneName = currentZone.GetZoneName.TrimEnd();
                 eZoneStatus zoneStatus = currentZone.GetZoneStatus;
                 string devicesToSend = string.Join(",", CheckZoneNotificationProperty(e.Zone, areaArmedStatus));
-                myPanel.SendDebug(String.Format("NotificationMessageHandler: Building Message *{0} - {1}:{2} to Devices {3}", areaName, zoneName, zoneStatus, devicesToSend));
-                PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, zoneName), String.Format("{0}", zoneStatus));
+                myPanel.SendDebug(String.Format("Zone Devices to send count {0} - {1}", devicesToSend.Length, devicesToSend));
+                if (devicesToSend.Length > 0 && !String.IsNullOrEmpty(devicesToSend))
+                {
+                    myPanel.SendDebug(
+                        String.Format("NotificationMessageHandler: Building Message *{0} - {1}:{2} to Devices {3}",
+                            areaName, zoneName, zoneStatus, devicesToSend));
+                    //PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, zoneName), String.Format("{0}", zoneStatus));
+                }
             }
         }
 
@@ -116,12 +127,14 @@ namespace ElkAlarm
                         armedStatus == eAreaArmedStatus.Disarmed)
                     {
                         devicesToSend.Add(userDevice.Value.DeviceName);
+                        myPanel.SendDebug(String.Format("NotificationMessageHandler: Zone Check Disarmed {0} - {1}", zone, userDevice.Value.DeviceName));
                     }
 
                     if (userDevice.Value.NotificationZones[zone].ArmedNotifications == 1 &&
                         armedStatus > eAreaArmedStatus.Disarmed)
                     {
                         devicesToSend.Add(userDevice.Value.DeviceName);
+                        myPanel.SendDebug(String.Format("NotificationMessageHandler: Zone Check Armed {0} - {1}", zone, userDevice.Value.DeviceName));
                     }
                 }
                 catch (Exception ex)
@@ -129,6 +142,7 @@ namespace ElkAlarm
                     myPanel.SendDebug(String.Format("NotificationMessageHandler: Error checking zone property {0} {1} {2} \r\n{3}", userDevice, zone, ex.ToString()));
                 }
             }
+            myPanel.SendDebug(String.Format("NotificationMessageHandler: Zone Devices to send count {0}", devicesToSend.Count));
             return devicesToSend.ToArray();
         }
     }
