@@ -47,20 +47,32 @@ namespace ElkAlarm
         {
             if (!myElkNotificationManager.managerReady) return;
             ElkArea currentArea = myPanel.GetAreaObject(e.Area);
-
+            string areaName = currentArea.GetAreaName.TrimEnd();
             switch (e.EventUpdateType)
             {
                 case eElkAreaEventUpdateType.ArmedStatusChange:
                     eAreaArmedStatus status = currentArea.GetAreaArmedStatus;
-                    string areaName = currentArea.GetAreaName.TrimEnd();
-                    string devicesToSend = string.Join(",", CheckAreaNotificationProperty(currentArea, e.EventUpdateType));
-                    if (devicesToSend.Length > 0 && !String.IsNullOrEmpty(devicesToSend))
+
+                    string devicesToSendArmed = string.Join(",", CheckAreaNotificationProperty(currentArea, e.EventUpdateType));
+                    if (devicesToSendArmed.Length > 0 && !String.IsNullOrEmpty(devicesToSendArmed))
                     {
-                        PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, status),
+                        PushoverManager.Instance.SendMessage(devicesToSendArmed, String.Format("{0} - {1}", areaName, status),
                             String.Format("Area {0}", status));
                         myPanel.SendDebug(
                             String.Format("NotificationMessageHandler: Building Message *{0} - {1} to Devices {2}",
-                                areaName, status, devicesToSend));
+                                areaName, status, devicesToSendArmed));
+                    }
+                    break;
+                case eElkAreaEventUpdateType.AlarmStateChange:
+                    eAreaAlarmState alarmStatus = currentArea.GetAlarmStatus;
+                    string devicesToSendAlarm = string.Join(",", CheckAreaNotificationProperty(currentArea, e.EventUpdateType));
+                    if (devicesToSendAlarm.Length > 0 && !String.IsNullOrEmpty(devicesToSendAlarm))
+                    {
+                        PushoverManager.Instance.SendMessage(devicesToSendAlarm, String.Format("{0} - {1}", areaName, alarmStatus),
+                            String.Format("Area {0}", alarmStatus));
+                        myPanel.SendDebug(
+                            String.Format("NotificationMessageHandler: Building Message *{0} - {1} to Devices {2}",
+                                areaName, alarmStatus, devicesToSendAlarm));
                     }
                     break;
             }
@@ -85,7 +97,7 @@ namespace ElkAlarm
                     myPanel.SendDebug(
                         String.Format("NotificationMessageHandler: Building Message *{0} - {1}:{2} to Devices {3}",
                             areaName, zoneName, zoneStatus, devicesToSend));
-                    //PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, zoneName), String.Format("{0}", zoneStatus));
+                    PushoverManager.Instance.SendMessage(devicesToSend, String.Format("{0} - {1}", areaName, zoneName), String.Format("{0}", zoneStatus));
                 }
             }
         }
@@ -102,7 +114,13 @@ namespace ElkAlarm
                     {
                         if (update == eElkAreaEventUpdateType.ArmedStatusChange && userDevice.Value.NotificationAreas[area.GetAreaNumber].ArmedStateChange == 1)
                         {
-                            myPanel.SendDebug(String.Format("NotificationMessageHandler: OK To send message for {0} {1}", userDevice.Value.DeviceName, area));
+                            myPanel.SendDebug(String.Format("NotificationMessageHandler: OK To send Armed State message for {0} {1}", userDevice.Value.DeviceName, area));
+                            devicesToSend.Add(userDevice.Value.DeviceName);
+                        }
+
+                        if (update == eElkAreaEventUpdateType.AlarmStateChange && userDevice.Value.NotificationAreas[area.GetAreaNumber].AlarmStateChange == 1)
+                        {
+                            myPanel.SendDebug(String.Format("NotificationMessageHandler: OK To send Alarm Status message for {0} {1}", userDevice.Value.DeviceName, area));
                             devicesToSend.Add(userDevice.Value.DeviceName);
                         }
                     }
